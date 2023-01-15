@@ -180,6 +180,7 @@ authRouter.post(
 authRouter.post("/password-recovery",
     limiterPasswordRecovery,
     emailValidation,
+    inputValMiddleware,
     async (req: Request, res: Response) => {
         try {
             const user = await usersDbRepository.findUserByLoginOrEmail(req.body.email)
@@ -195,6 +196,7 @@ authRouter.post("/new-password",
     limiterNewPassword,
     recoveryCodeValidation,
     newPasswordValidation,
+    inputValMiddleware,
     async (req: Request, res: Response) => {
         try {
             await authService.updatePasswordByRecoveryCode(
