@@ -135,6 +135,20 @@ export const authService = {
         }
         return true;
     },
+    async makeRecoveryCode(email: string) {
+        const newEmailConfirmation = createNewConfirmationCode();
+        const newUser =
+            await usersDbRepository.findByEmailAndUpdateEmailConfirmation(
+                email,
+                newEmailConfirmation
+            );
+        try {
+            return await emailAdapter.sendPasswordRecoveryEmail(newUser);
+        } catch (error) {
+            // await usersDbRepository.deleteUser(id)
+        }
+        return true;
+    },
     async updatePasswordByRecoveryCode(code: string, password: string) {
         //const user = await usersDbRepository.findUserByCode(code);
         const passwordSalt = await bcrypt.genSalt(10);
