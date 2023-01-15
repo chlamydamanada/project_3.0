@@ -184,7 +184,7 @@ authRouter.post("/password-recovery",
         try {
             const user = await usersDbRepository.findUserByLoginOrEmail(req.body.email)
             if (user) {
-                await authService.checkEmailIsConfirmed(req.body.email);
+                await authService.makeRecoveryCode(req.body.email);
             }
             res.sendStatus(204);
         } catch (e) {
