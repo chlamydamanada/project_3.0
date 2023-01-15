@@ -15,3 +15,16 @@ export const codeValidation = body("code")
     }
     return true;
   });
+export const recoveryCodeValidation = body("recoveryCode")
+    .isString()
+    .custom(async (code: string) => {
+        const user = await usersDbRepository.findUserByCode(code);
+
+        if (user.emailConfirmation.isConfirmed === true) {
+            throw new Error("email is confirmed");
+        }
+        if (user.emailConfirmation.expirationDate < new Date()) {
+            throw new Error("Confirmation time is out");
+        }
+        return true;
+    });

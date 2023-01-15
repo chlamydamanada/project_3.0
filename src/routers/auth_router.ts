@@ -2,13 +2,13 @@ import {Request, Response, Router} from "express";
 import {RequestWithBody} from "../models/request_types";
 import {authService} from "../domain/auth_service";
 import {loginOrEmailValidation} from "../middlewares/auth_loginOrEmail.middleware";
-import {passwordValidation} from "../middlewares/password.middleware";
+import {newPasswordValidation, passwordValidation} from "../middlewares/password.middleware";
 import {inputValMiddleware} from "../middlewares/inputValue.middleware";
 import {bearerAuthMiddleware} from "../middlewares/bearerAuthrization.middleware";
 import {userCreateType} from "../models/userCreateModel";
 import {emailValidation} from "../middlewares/email.middleware";
 import {loginValidation} from "../middlewares/login.middleware";
-import {codeValidation} from "../middlewares/code.middleware";
+import {codeValidation, recoveryCodeValidation} from "../middlewares/code.middleware";
 import {emailExistValidation} from "../middlewares/emailExist.middleware";
 import {emailIsConfirmedValidation} from "../middlewares/emailIsConfirmed.middleware";
 import {loginExistValidation} from "../middlewares/loginExist.middleware";
@@ -193,8 +193,8 @@ authRouter.post("/password-recovery",
     });
 authRouter.post("/new-password",
     limiterNewPassword,
-    codeValidation,
-    passwordValidation,
+    recoveryCodeValidation,
+    newPasswordValidation,
     async (req: Request, res: Response) => {
         try {
             await authService.updatePasswordByRecoveryCode(
