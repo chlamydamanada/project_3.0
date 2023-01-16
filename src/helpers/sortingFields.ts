@@ -41,7 +41,7 @@ export const sortingQueryFields = {
       return {};
     }
   },
-  nameFilter(name: string | undefined) {
+  nameFilter(name: string | undefined){
     if (name) {
       return { name: { $regex: name, $options: "i" } };
     } else {

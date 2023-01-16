@@ -1,5 +1,10 @@
 import {Request, Response, Router} from "express";
-import {RequestWithBody} from "../models/request_types";
+import {
+    RequestWithBody,
+    RequestWithDeviceId,
+    RequestWithUser,
+    RequestWithUserAndDeviceId
+} from "../models/request_types";
 import {authService} from "../domain/auth_service";
 import {loginOrEmailValidation} from "../middlewares/auth_loginOrEmail.middleware";
 import {newPasswordValidation, passwordValidation} from "../middlewares/password.middleware";
@@ -21,6 +26,9 @@ import {
     limiterRegistrationEmailResending,
 } from "../middlewares/limitRegistration.middleware";
 import {usersDbRepository} from "../repositories/users_db_repository";
+import {newPasswordCreateType} from "../models/newPasswordCreateModel";
+import {userViewType} from "../models/userViewModel";
+import {loginCreateType} from "../models/loginCreateModel";
 
 export const authRouter = Router();
 
@@ -30,7 +38,7 @@ authRouter.post(
     loginOrEmailValidation,
     passwordValidation,
     inputValMiddleware,
-    async (req: Request, res: Response<{ accessToken: string } | string>) => {
+    async (req: RequestWithBody<loginCreateType>, res: Response<{ accessToken: string } | string>) => {
         try {
             const user = await authService.checkCredentials(
                 req.body.loginOrEmail,
@@ -63,7 +71,8 @@ authRouter.post(
 authRouter.post(
     "/refresh-token",
     refreshTokenMiddleware,
-    async (req: Request, res: Response) => {
+    async (req: RequestWithUserAndDeviceId<{deviceId: string},
+        userViewType>, res: Response<{accessToken: string} | string>) => {
         try {
             if (req.user) {
                 const accessToken = await authService.createAccessToken(req.user.id);
@@ -89,7 +98,7 @@ authRouter.post(
 authRouter.post(
     "/logout",
     refreshTokenMiddleware,
-    async (req: Request, res: Response) => {
+    async (req: RequestWithDeviceId<{deviceId: string}>, res: Response<string>) => {
         try {
             await authService.deleteRefreshTokenMetaByToken(req.deviceId!);
             res.clearCookie("refreshToken").sendStatus(204);
@@ -101,7 +110,7 @@ authRouter.post(
 authRouter.get(
     "/me",
     bearerAuthMiddleware,
-    async (req: Request, res: Response<meViewType | string>) => {
+    async (req: RequestWithUser<userViewType>, res: Response<meViewType | string>) => {
         try {
             if (req.user) {
                 const me: meViewType = {
@@ -126,7 +135,7 @@ authRouter.post(
     emailValidation,
     emailExistValidation,
     inputValMiddleware,
-    async (req: RequestWithBody<userCreateType>, res: Response) => {
+    async (req: RequestWithBody<userCreateType>, res: Response<string>) => {
         try {
             await authService.createUser(
                 req.body.login,
@@ -144,7 +153,7 @@ authRouter.post(
     limiterRegistrationConfirmation,
     codeValidation,
     inputValMiddleware,
-    async (req: RequestWithBody<{ code: string }>, res: Response) => {
+    async (req: RequestWithBody<{ code: string }>, res: Response<string>) => {
         try {
             const isConfirmed = await authService.confirmEmail(req.body.code);
             if (isConfirmed) {
@@ -164,7 +173,7 @@ authRouter.post(
     emailValidation,
     emailIsConfirmedValidation,
     inputValMiddleware,
-    async (req: RequestWithBody<{ email: string }>, res: Response) => {
+    async (req: RequestWithBody<{ email: string }>, res: Response<string>) => {
         try {
             const result = await authService.checkEmailIsConfirmed(req.body.email);
             if (result) {
@@ -181,7 +190,7 @@ authRouter.post("/password-recovery",
     limiterPasswordRecovery,
     emailValidation,
     inputValMiddleware,
-    async (req: Request, res: Response) => {
+    async (req: RequestWithBody<{email: string}>, res: Response<string>) => {
         try {
             const user = await usersDbRepository.findUserByLoginOrEmail(req.body.email)
             if (user) {
@@ -197,7 +206,7 @@ authRouter.post("/new-password",
     recoveryCodeValidation,
     newPasswordValidation,
     inputValMiddleware,
-    async (req: Request, res: Response) => {
+    async (req: RequestWithBody<newPasswordCreateType>, res: Response<string>) => {
         try {
             await authService.updatePasswordByRecoveryCode(
                 req.body.recoveryCode,
