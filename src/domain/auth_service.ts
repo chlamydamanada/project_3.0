@@ -10,13 +10,14 @@ import {emailAdapter} from "../adapters/email_adapter";
 import {jwtService} from "../application/jwt_service";
 import {authRepository} from "../repositories/auth_repository";
 import {createNewConfirmationCode} from "../helpers/createNewConfirmationCode";
+import {generateHash, generateSalt} from "../helpers/generator_Hash";
 
 export const authService = {
     async checkCredentials(loginOrEmail: string, password: string) {
         const user = await usersDbRepository.findUserByLoginOrEmail(loginOrEmail);
         if (!user) return false;
         const salt = user.hash.slice(0, 29);
-        const userHash = await usersService.generateHash(password, salt);
+        const userHash = await generateHash(password, salt);
         if (user.hash === userHash) {
             return user;
         } else {
@@ -88,8 +89,8 @@ export const authService = {
         password: string,
         email: string
     ): Promise<string> {
-        const passwordSalt = await bcrypt.genSalt(10);
-        const passwordHash = await usersService.generateHash(
+        const passwordSalt = await generateSalt();
+        const passwordHash = await generateHash(
             password,
             passwordSalt
         );
@@ -150,9 +151,8 @@ export const authService = {
         return true;
     },
     async updatePasswordByRecoveryCode(code: string, password: string) {
-        //const user = await usersDbRepository.findUserByCode(code);
-        const passwordSalt = await bcrypt.genSalt(10);
-        const passwordHash = await usersService.generateHash(
+        const passwordSalt = await generateSalt();
+        const passwordHash = await generateHash(
             password,
             passwordSalt
         );

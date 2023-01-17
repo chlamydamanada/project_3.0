@@ -4,13 +4,15 @@ import {authRepository} from "../repositories/auth_repository";
 import {authService} from "../domain/auth_service";
 import {deviceIdConformityMiddleware} from "../middlewares/deviceIdConformity.middleware";
 import {deviceViewType} from "../models/deviceViewModel";
+import {RequestWithURL, RequestWithUser, RequestWithUserAndDeviceId} from "../models/request_types";
+import {userViewType} from "../models/userViewModel";
 
 export const securityRouter = Router();
 
 securityRouter.get(
     "/",
     refreshTokenMiddleware,
-    async (req: Request, res: Response<deviceViewType[] | string>) => {
+    async (req: RequestWithUser<userViewType>, res: Response<deviceViewType[] | string>) => {
         try {
             if (req.user) {
                 const allDevices = await authRepository.findAllDevices(req.user.id);
@@ -24,7 +26,8 @@ securityRouter.get(
 securityRouter.delete(
     "/",
     refreshTokenMiddleware,
-    async (req: Request, res: Response<string>) => {
+    async (req: RequestWithUserAndDeviceId<{deviceId: string}, userViewType>
+           , res: Response<string>) => {
         try {
             if (req.user) {
                 await authService.deleteAllRefreshTokenMetaByIdExceptMy(
@@ -42,7 +45,7 @@ securityRouter.delete(
     "/:deviceId",
     refreshTokenMiddleware,
     deviceIdConformityMiddleware,
-    async (req: Request, res: Response<string>) => {
+    async (req: RequestWithURL<{deviceId: string}>, res: Response<string>) => {
         try {
             const isDel = await authService.deleteRefreshTokenMetaByToken(
                 req.params.deviceId

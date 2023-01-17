@@ -168,7 +168,7 @@ postsRouter.post(
 postsRouter.get(
     "/:postId/comments",
     async (
-        req: RequestWithUrlAndQuery<{ postId: string }, any>,
+        req: RequestWithUrlAndQuery<{ postId: string }, postQueryType>,
         res: Response<commentsViewType | string>
     ) => {
         try {

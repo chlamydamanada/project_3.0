@@ -1,8 +1,8 @@
-import { usersDbRepository } from "../repositories/users_db_repository";
-import bcrypt from "bcrypt";
-import { userDbType } from "../models/userDBModel";
-import { v4 as uuidv4 } from "uuid";
+import {usersDbRepository} from "../repositories/users_db_repository";
+import {userDbType} from "../models/userDBModel";
+import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
+import {generateHash, generateSalt} from "../helpers/generator_Hash";
 
 export const usersService = {
   async createUser(
@@ -10,8 +10,8 @@ export const usersService = {
     password: string,
     email: string
   ): Promise<string> {
-    const passwordSalt = await bcrypt.genSalt(10);
-    const passwordHash = await this.generateHash(password, passwordSalt);
+    const passwordSalt = await generateSalt();
+    const passwordHash = await generateHash(password, passwordSalt);
 
     const newUser: userDbType = {
       login: login,
@@ -27,6 +27,7 @@ export const usersService = {
         isConfirmed: true,
       },
     };
+    // make isConfirmed: true by authService!!!!!
     return await usersDbRepository.createUser(newUser);
   },
   async findUserById(id: string): Promise<boolean> {
@@ -35,8 +36,4 @@ export const usersService = {
   async deleteUser(id: string): Promise<boolean> {
     return await usersDbRepository.deleteUser(id);
   },
-  async generateHash(password: string, salt: string) {
-    const hash = await bcrypt.hash(password, salt);
-    return hash;
-  },
-};
+  };

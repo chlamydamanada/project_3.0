@@ -68,7 +68,7 @@ export const blogsQwRepository = {
       .limit(pS)
       .lean();
     const items = posts.map((p) => ({
-      id: p._id,
+      id: p._id.toString(),
       title: p.title,
       shortDescription: p.shortDescription,
       content: p.content,
