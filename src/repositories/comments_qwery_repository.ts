@@ -2,6 +2,7 @@ import {ObjectId} from "mongodb";
 import {commentsModel} from "./db";
 import {commentViewType} from "../models/commentViewModel";
 import {commentsViewType} from "../models/commentsViewModel";
+import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 
 export const commentsQweryRepository = {
   async findComments(
@@ -25,13 +26,10 @@ export const commentsQweryRepository = {
       userLogin: c.userLogin,
       createdAt: c.createdAt,
     }));
-    return {
-      pagesCount: Math.ceil(totalCount / pS),
-      page: pN,
-      pageSize: pS,
-      totalCount: totalCount,
-      items: items,
-    };
+    return getArrayWithPagination(totalCount,
+        pS,
+        pN,
+        items);
   },
   async findCommentById(id: string): Promise<commentViewType | undefined> {
      let comment = await commentsModel.findOne({ _id: new ObjectId(id) });

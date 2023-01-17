@@ -1,6 +1,7 @@
 import {ObjectId} from "mongodb";
 import {postsModel} from "./db";
 import {postsViewType} from "../models/postsViewModel";
+import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 
 export const postsQwRepository = {
   async findPosts(pN: number, pS: number, sortField: string, sD: 1 | -1): Promise<postsViewType> {
@@ -20,13 +21,10 @@ export const postsQwRepository = {
       blogName: p.blogName,
       createdAt: p.createdAt,
     }));
-    return {
-      pagesCount: Math.ceil(totalCount / pS),
-      page: pN,
-      pageSize: pS,
-      totalCount: totalCount,
-      items: items,
-    };
+    return getArrayWithPagination(totalCount,
+        pS,
+        pN,
+        items);
   },
   async findPost(id: string) {
     let post = await postsModel.findOne({ _id: new ObjectId(id) });

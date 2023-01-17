@@ -3,10 +3,10 @@ import { blogViewType } from "../models/blogViewModel";
 import { blogsViewType } from "../models/blogsViewModel";
 import { sortingQueryFields } from "../helpers/sortingFields";
 import {BlogsModel, postsModel} from "./db";
+import { getArrayWithPagination} from "../helpers/arrayWhithPagination";
+import {postsViewType} from "../models/postsViewModel";
+import {postViewType} from "../models/postViewModel";
 
-type searchVal = {
-  name?: {};
-};
 export const blogsQwRepository = {
   async findBlogs(
     searchNameTerm: string | undefined,
@@ -23,20 +23,17 @@ export const blogsQwRepository = {
       .skip((pN - 1) * pS)
       .limit(pS)
       .lean();
-    const items = blogs.map((b) => ({
+    const items: blogViewType[] = blogs.map((b) => ({
       id: b._id.toString(),
       name: b.name,
       description: b.description,
       websiteUrl: b.websiteUrl,
       createdAt: b.createdAt,
     }));
-    return {
-      pagesCount: Math.ceil(totalCount / pS),
-      page: pN,
-      pageSize: pS,
-      totalCount: totalCount,
-      items: items,
-    };
+    return getArrayWithPagination(totalCount,
+        pS,
+        pN,
+        items);
   },
 
   async findBlog(id: string): Promise<blogViewType | undefined> {
@@ -59,7 +56,7 @@ export const blogsQwRepository = {
     pS: number,
     sortField: string,
     sD: 1 | -1
-  ) {
+  ): Promise<postsViewType> {
     let totalCount = await postsModel.count({ blogId: blogId });
     let posts = await postsModel
       .find({ blogId: blogId })
@@ -67,7 +64,7 @@ export const blogsQwRepository = {
       .skip((pN - 1) * pS)
       .limit(pS)
       .lean();
-    const items = posts.map((p) => ({
+    const items: postViewType[] = posts.map((p) => ({
       id: p._id.toString(),
       title: p.title,
       shortDescription: p.shortDescription,
@@ -76,12 +73,11 @@ export const blogsQwRepository = {
       blogName: p.blogName,
       createdAt: p.createdAt,
     }));
-    return {
-      pagesCount: Math.ceil(totalCount / pS),
-      page: pN,
-      pageSize: pS,
-      totalCount: totalCount,
-      items: items,
-    };
+    return getArrayWithPagination(
+        totalCount,
+        pS,
+        pN,
+        items)
+
   },
 };
