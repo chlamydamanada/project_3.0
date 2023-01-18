@@ -8,7 +8,7 @@ import {postsViewType} from "../models/postsViewModel";
 import {postViewType} from "../models/postViewModel";
 import {mappers} from "../helpers/mappers";
 
-export const blogsQwRepository = {
+class BlogsQwRepositoryClass  {
     async findBlogs(
         searchNameTerm: string | undefined,
         pN: number,
@@ -29,8 +29,7 @@ export const blogsQwRepository = {
             pS,
             pN,
             items);
-    },
-
+    }
     async findBlog(id: string): Promise<blogViewType | undefined> {
         let blog = await BlogsModel.findOne({_id: new ObjectId(id)});
         if (!blog) {
@@ -38,7 +37,7 @@ export const blogsQwRepository = {
         } else {
             return mappers.blogMapper(blog);
         }
-    },
+    }
     async findPostsById(
         blogId: string,
         pN: number,
@@ -59,5 +58,6 @@ export const blogsQwRepository = {
             pS,
             pN,
             items)
-    },
+    }
 };
+export const blogsQwRepository = new BlogsQwRepositoryClass();

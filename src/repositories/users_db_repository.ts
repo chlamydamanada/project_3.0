@@ -4,15 +4,15 @@ import {userDbType} from "../models/userDBModel";
 import {emailConfirmationType} from "../models/emailConfirmationServiceModel";
 import {usersModel} from "./db";
 
-export const usersDbRepository = {
+ class UsersDbRepositoryClass  {
     async createUser(user: userDbType): Promise<string> {
         const newUser = await usersModel.create(user);
         return newUser._id.toString();
-    },
+    }
     async deleteUser(id: string): Promise<boolean> {
         const isDel = await usersModel.deleteOne({_id: new ObjectId(id)});
         return isDel.deletedCount === 1;
-    },
+    }
     async findUserById(id: string): Promise<boolean> {
         const isUser = await usersModel.findOne({_id: new ObjectId(id)});
         if (isUser) {
@@ -20,7 +20,7 @@ export const usersDbRepository = {
         } else {
             return false;
         }
-    },
+    }
     async findUserByLoginOrEmail(
         loginOrEmail: string
     ): Promise<userAuthServiceType | undefined> {
@@ -37,13 +37,13 @@ export const usersDbRepository = {
         } else {
             return undefined;
         }
-    },
+    }
     async findFullUserById(id: string): Promise<any> {
         const fullUser = await usersModel.findOne({_id: new ObjectId(id)});
         if (fullUser) {
             return fullUser;
         }
-    },
+    }
     async findUserByCode(code: string): Promise<any> {
         const user = await usersModel.findOne({
             "emailConfirmation.confirmationCode": code,
@@ -53,14 +53,14 @@ export const usersDbRepository = {
         } else {
             return false;
         }
-    },
+    }
     async updateConfirmation(_id: ObjectId): Promise<boolean> {
         const result = await usersModel.updateOne(
             {_id},
             {$set: {"emailConfirmation.isConfirmed": true}}
         );
         return result.matchedCount === 1;
-    },
+    }
     async findByEmailAndUpdateEmailConfirmation(
         email: string,
         newEmailConfirmation: emailConfirmationType
@@ -71,7 +71,7 @@ export const usersDbRepository = {
             {returnDocument: "after"}
         );
         return newUser;
-    },
+    }
     async findByRecoveryCodeAndUpdatePasswordHash(code: string, passwordHash: string) {
         await usersModel.findOneAndUpdate(
             {"emailConfirmation.confirmationCode": code},
@@ -80,3 +80,4 @@ export const usersDbRepository = {
         );
     }
 };
+export const usersDbRepository = new UsersDbRepositoryClass();

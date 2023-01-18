@@ -3,7 +3,7 @@ import {postsModel} from "./db";
 import {postsViewType} from "../models/postsViewModel";
 import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 
-export const postsQwRepository = {
+class PostsQwRepositoryClass  {
   async findPosts(pN: number, pS: number, sortField: string, sD: 1 | -1): Promise<postsViewType> {
     let totalCount = await postsModel.count({});
     const posts = await postsModel
@@ -25,7 +25,7 @@ export const postsQwRepository = {
         pS,
         pN,
         items);
-  },
+  }
   async findPost(id: string) {
     let post = await postsModel.findOne({ _id: new ObjectId(id) });
     if (!post) {
@@ -40,5 +40,6 @@ export const postsQwRepository = {
       blogName: post.blogName,
       createdAt: post.createdAt,
     };
-  },
+  }
 };
+export const postsQwRepository = new PostsQwRepositoryClass();

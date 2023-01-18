@@ -1,39 +1,30 @@
 import {usersDbRepository} from "../repositories/users_db_repository";
 import {userDbType} from "../models/userDBModel";
-import {v4 as uuidv4} from "uuid";
-import add from "date-fns/add";
 import {generateHash, generateSalt} from "../helpers/generator_Hash";
+import {UserDbClass} from "../classes/UserDbClass";
+import {authService} from "./auth_service";
 
-export const usersService = {
-  async createUser(
-    login: string,
-    password: string,
-    email: string
-  ): Promise<string> {
-    const passwordSalt = await generateSalt();
-    const passwordHash = await generateHash(password, passwordSalt);
+class UserServiceClass {
+    async createUser(
+        login: string,
+        password: string,
+        email: string
+    ): Promise<string> {
+        const passwordSalt = await generateSalt();
+        const passwordHash = await generateHash(password, passwordSalt);
 
-    const newUser: userDbType = {
-      login: login,
-      email: email,
-      passwordHash,
-      createdAt: new Date().toISOString(),
-      emailConfirmation: {
-        confirmationCode: uuidv4(),
-        expirationDate: add(new Date(), {
-          hours: 1,
-          minutes: 30,
-        }),
-        isConfirmed: true,
-      },
-    };
-    // make isConfirmed: true by authService!!!!!
-    return await usersDbRepository.createUser(newUser);
-  },
-  async findUserById(id: string): Promise<boolean> {
-    return await usersDbRepository.findUserById(id);
-  },
-  async deleteUser(id: string): Promise<boolean> {
-    return await usersDbRepository.deleteUser(id);
-  },
-  };
+        const newUserDto: userDbType = new UserDbClass(login, email, passwordHash);
+
+        const newUserId = await usersDbRepository.createUser(newUserDto);
+        await authService.confirmEmail(newUserDto.emailConfirmation.confirmationCode)
+        return newUserId;
+    }
+    async findUserById(id: string): Promise<boolean> {
+        return await usersDbRepository.findUserById(id);
+    }
+    async deleteUser(id: string): Promise<boolean> {
+        return await usersDbRepository.deleteUser(id);
+    }
+}
+
+export const usersService = new UserServiceClass();

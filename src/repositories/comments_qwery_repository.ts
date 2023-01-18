@@ -4,7 +4,7 @@ import {commentViewType} from "../models/commentViewModel";
 import {commentsViewType} from "../models/commentsViewModel";
 import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 
-export const commentsQweryRepository = {
+class CommentsQweryRepositoryClass {
   async findComments(
     postId: string,
     pN: number,
@@ -30,7 +30,7 @@ export const commentsQweryRepository = {
         pS,
         pN,
         items);
-  },
+  }
   async findCommentById(id: string): Promise<commentViewType | undefined> {
      let comment = await commentsModel.findOne({ _id: new ObjectId(id) });
     if (comment) {
@@ -44,5 +44,6 @@ export const commentsQweryRepository = {
     } else {
       return undefined;
     }
-  },
+  }
 };
+export const commentsQweryRepository = new CommentsQweryRepositoryClass();

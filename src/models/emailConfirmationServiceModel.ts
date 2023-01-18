@@ -1,4 +1,3 @@
-import { v4 } from "uuid/index";
 
 export type emailConfirmationType = {
   confirmationCode: string;

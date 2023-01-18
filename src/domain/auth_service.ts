@@ -1,18 +1,16 @@
 import {usersDbRepository} from "../repositories/users_db_repository";
-import {usersService} from "./users_service";
 import jwt from "jsonwebtoken";
 import {settings} from "../settings/settings";
-import bcrypt from "bcrypt";
 import {userDbType} from "../models/userDBModel";
 import {v4 as uuidv4} from "uuid";
-import add from "date-fns/add";
 import {emailAdapter} from "../adapters/email_adapter";
 import {jwtService} from "../application/jwt_service";
 import {authRepository} from "../repositories/auth_repository";
 import {createNewConfirmationCode} from "../helpers/createNewConfirmationCode";
 import {generateHash, generateSalt} from "../helpers/generator_Hash";
+import {UserDbClass} from "../classes/UserDbClass";
 
-export const authService = {
+class AuthServiceClass  {
     async checkCredentials(loginOrEmail: string, password: string) {
         const user = await usersDbRepository.findUserByLoginOrEmail(loginOrEmail);
         if (!user) return false;
@@ -23,7 +21,7 @@ export const authService = {
         } else {
             return false;
         }
-    },
+    }
     async createAccessToken(userID: string) {
         const token = jwt.sign({userId: userID}, settings.jwt_secretAT, {
             expiresIn: "10 seconds",
@@ -31,7 +29,7 @@ export const authService = {
         return {
             accessToken: token,
         };
-    },
+    }
     async createRefreshToken(
         userId: string,
         ip: string,
@@ -49,7 +47,7 @@ export const authService = {
             expirationDate: tokenInfo.exp!,
         });
         return token;
-    },
+    }
     async updateRefreshToken(userId: string, ip: string, deviceId: string) {
         const token = await jwtService.createRefreshToken(userId, deviceId);
         const tokenInfo = await jwtService.decodeRefreshToken(token);
@@ -60,7 +58,7 @@ export const authService = {
             expirationDate: tokenInfo.exp!,
         });
         return token;
-    },
+    }
     async getUserIdByAccessToken(token: string): Promise<string | null> {
         try {
             const result: any = jwt.verify(token, settings.jwt_secretAT);
@@ -69,11 +67,11 @@ export const authService = {
             console.log("Access Token error");
             return null;
         }
-    },
+    }
     async deleteRefreshTokenMetaByToken(deviceId: string): Promise<boolean> {
         const isDelRT = await authRepository.deleteRefreshTokenMeta(deviceId);
         return isDelRT;
-    },
+    }
     async deleteAllRefreshTokenMetaByIdExceptMy(
         userId: string,
         deviceId: string
@@ -83,7 +81,7 @@ export const authService = {
             deviceId
         );
         return isDelRT;
-    },
+    }
     async createUser(
         login: string,
         password: string,
@@ -94,20 +92,7 @@ export const authService = {
             password,
             passwordSalt
         );
-        const newUser: userDbType = {
-            login: login,
-            email: email,
-            passwordHash,
-            createdAt: new Date().toISOString(),
-            emailConfirmation: {
-                confirmationCode: uuidv4(),
-                expirationDate: add(new Date(), {
-                    hours: 1,
-                    minutes: 30,
-                }),
-                isConfirmed: false,
-            },
-        };
+        const newUser: userDbType = new UserDbClass(login, email, passwordHash)
         const userId = await usersDbRepository.createUser(newUser);
         const fullUser = await usersDbRepository.findFullUserById(userId);
         try {
@@ -117,11 +102,11 @@ export const authService = {
             // await usersDbRepository.deleteUser(id)
         }
         return userId;
-    },
+    }
     async confirmEmail(code: string): Promise<boolean> {
         const user = await usersDbRepository.findUserByCode(code);
         return await usersDbRepository.updateConfirmation(user._id);
-    },
+    }
     async checkEmailIsConfirmed(email: string) {
         const newEmailConfirmation = createNewConfirmationCode();
         const newUser =
@@ -132,10 +117,10 @@ export const authService = {
         try {
             return await emailAdapter.sendRegistrationEmail(newUser);
         } catch (error) {
-            // await usersDbRepository.d.eleteUser(id)
+            // await usersDbRepository.deleteUser(id)
         }
         return true;
-    },
+    }
     async makeRecoveryCode(email: string) {
         const newEmailConfirmation = createNewConfirmationCode();
         const newUser =
@@ -149,7 +134,7 @@ export const authService = {
             // await usersDbRepository.deleteUser(id)
         }
         return true;
-    },
+    }
     async updatePasswordByRecoveryCode(code: string, password: string) {
         const passwordSalt = await generateSalt();
         const passwordHash = await generateHash(
@@ -159,3 +144,5 @@ export const authService = {
         await usersDbRepository.findByRecoveryCodeAndUpdatePasswordHash(code, passwordHash)
     }
 };
+
+export const authService = new AuthServiceClass();

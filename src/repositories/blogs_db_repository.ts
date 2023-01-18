@@ -3,7 +3,7 @@ import {blogViewType} from "../models/blogViewModel";
 import {blogCreateServiceType} from "../models/blogCreateModel";
 import {BlogsModel} from "./db";
 
-export const blogsRepository = {
+class BlogsRepositoryClass  {
     async findBlog(id: string): Promise<boolean> {
         let blog = await BlogsModel.findOne({_id: new ObjectId(id)});
         if (!blog) {
@@ -11,11 +11,11 @@ export const blogsRepository = {
         } else {
             return true;
         }
-    },
+    }
     async deleteBlog(id: string): Promise<boolean> {
         const isDel = await BlogsModel.deleteOne({_id: new ObjectId(id)});
         return isDel.deletedCount === 1;
-    },
+    }
     async createBlog(blog: blogCreateServiceType): Promise<blogViewType> {
         const newBlog = await BlogsModel.create(blog);
 
@@ -26,7 +26,7 @@ export const blogsRepository = {
             websiteUrl: blog.websiteUrl,
             createdAt: blog.createdAt,
         };
-    },
+    }
     async updateBlog(
         id: string,
         name: string,
@@ -44,5 +44,6 @@ export const blogsRepository = {
             }
         );
         return newBlog.matchedCount === 1;
-    },
+    }
 };
+export const blogsRepository = new BlogsRepositoryClass();

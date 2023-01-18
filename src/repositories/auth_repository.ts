@@ -1,10 +1,10 @@
 import {refreshTokenMetaModel} from "./db";
 import {deviceViewType} from "../models/deviceViewModel";
 
-export const authRepository = {
+class AuthRepositoryClass  {
   async createRefreshTokenMeta(device: any): Promise<void> {
     await refreshTokenMetaModel.create(device);
-  },
+  }
   async updateRefreshTokenMeta(device: any): Promise<boolean> {
     const result = await refreshTokenMetaModel.updateOne(
       { deviceId: device.deviceId },
@@ -18,7 +18,7 @@ export const authRepository = {
     );
 
     return result.matchedCount === 1;
-  },
+  }
   async findRefreshTokenMeta(deviceId: string) {
     const refreshTokenMeta = await refreshTokenMetaModel.findOne({
       deviceId: deviceId,
@@ -35,13 +35,13 @@ export const authRepository = {
     } else {
       return false;
     }
-  },
+  }
   async deleteRefreshTokenMeta(deviceId: string): Promise<boolean> {
     const isDel = await refreshTokenMetaModel.deleteOne({
       deviceId: deviceId,
     });
     return isDel.deletedCount === 1;
-  },
+  }
   async deleteALLRefreshTokenMetaByIdExceptMy(
     userId: string,
     deviceId: string
@@ -51,8 +51,7 @@ export const authRepository = {
       deviceId: { $ne: deviceId },
     });
     return isDel.deletedCount === 1;
-  },
-
+  }
   async findAllDevices(userId: string): Promise<deviceViewType[]> {
     const allDevices = await refreshTokenMetaModel
       .find({ userId: userId })
@@ -63,12 +62,13 @@ export const authRepository = {
       lastActiveDate: new Date(d.lastActiveDate * 1000),
       deviceId: d.deviceId,
     }));
-  },
+  }
   async findIsDeviceByDeviceId(deviceId: string): Promise<any>{
     const device = await refreshTokenMetaModel.find({
       deviceId: deviceId,
     });
 
     return device;
-  },
+  }
 };
+export const authRepository = new AuthRepositoryClass();

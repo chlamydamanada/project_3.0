@@ -3,11 +3,11 @@ import {postViewType} from "../models/postViewModel";
 import {postCreateServiceType} from "../models/postCreateModel";
 import {postsModel} from "./db";
 
-export const postsRepository = {
+class PostsRepositoryClass {
   async deletePost(id: string): Promise<boolean> {
     let isDel = await postsModel.deleteOne({ _id: new ObjectId(id) });
     return isDel.deletedCount === 1;
-  },
+  }
   async createPost(post: postCreateServiceType): Promise<postViewType> {
     let result = await postsModel.create(post);
     return {
@@ -19,7 +19,7 @@ export const postsRepository = {
       blogName: post.blogName,
       createdAt: post.createdAt,
     };
-  },
+  }
   async updatePost(
     id: string,
     title: string,
@@ -39,7 +39,7 @@ export const postsRepository = {
       }
     );
     return newPost.matchedCount === 1;
-  },
+  }
   async findPost(id: string): Promise<boolean> {
     let post = await postsModel.findOne({ _id: new ObjectId(id) });
     if (!post) {
@@ -47,5 +47,6 @@ export const postsRepository = {
     } else {
       return true;
     }
-  },
+  }
 };
+export const postsRepository = new PostsRepositoryClass();

@@ -4,7 +4,7 @@ import {usersViewType} from "../models/usersViewModel";
 import {sortingQueryFields} from "../helpers/sortingFields";
 import {usersModel} from "./db";
 
-export const usersQwRepository = {
+class UsersQwRepositoryClass {
   async findAllUsers(
     pageNumber: number,
     pageSize: number,
@@ -37,7 +37,7 @@ export const usersQwRepository = {
       totalCount: totalCount,
       items: items,
     };
-  },
+  }
   async findUserById(userId: string): Promise<userViewType | undefined> {
     const user = await usersModel.findOne({ _id: new ObjectId(userId) });
     if (!user) {
@@ -50,7 +50,7 @@ export const usersQwRepository = {
         createdAt: user.createdAt,
       };
     }
-  },
+  }
   async findUserByRefreshToken(
     refreshToken: string
   ): Promise<userViewType | undefined> {
@@ -65,5 +65,6 @@ export const usersQwRepository = {
         createdAt: user.createdAt,
       };
     }
-  },
+  }
 };
+export const usersQwRepository = new UsersQwRepositoryClass();
