@@ -1,12 +1,12 @@
-import {Request, Response, Router} from "express";
+import {Response, Router} from "express";
 import {blogsService} from "../domain/blogs_service";
 import {blogsQwRepository} from "../repositories/blogs_qwery_repo";
 import {postsService} from "../domain/posts_service";
 import {
-    RequestWithURL,
     RequestWithBody,
-    RequestWithUrlAndBody,
     RequestWithQuery,
+    RequestWithURL,
+    RequestWithUrlAndBody,
     RequestWithUrlAndQuery,
 } from "../models/request_types";
 import {baseAuthMiddleware} from "../middlewares/baseAuthorization.middleware";
@@ -29,12 +29,11 @@ import {postsViewType} from "../models/postsViewModel";
 
 export const blogsRouter = Router();
 
-blogsRouter.get(
-    "/",
-    async (
+class BlogsController {
+    async getAllUsers(
         req: RequestWithQuery<blogQueryType>,
         res: Response<blogsViewType | string>
-    ) => {
+    ) {
         try {
             const {sortBy, pageNumber, pageSize, searchNameTerm, sortDirection} =
                 req.query;
@@ -54,11 +53,9 @@ blogsRouter.get(
             res.status(500).send("blogsRouter.get/" + e)
         }
     }
-);
-blogsRouter.get(
-    "/:id",
-    async (req: RequestWithURL<{ id: string }>,
-           res: Response<blogViewType | string>) => {
+
+    async getBlogById(req: RequestWithURL<{ id: string }>,
+                      res: Response<blogViewType | string>) {
         try {
             let blog = await blogsQwRepository.findBlog(req.params.id);
             if (!blog) {
@@ -69,12 +66,8 @@ blogsRouter.get(
             res.status(500).send("blogsRouter.get/:id" + e)
         }
     }
-);
 
-blogsRouter.delete(
-    "/:id",
-    baseAuthMiddleware,
-    async (req: RequestWithURL<{ id: string }>, res: Response<string>) => {
+    async deleteBlogById(req: RequestWithURL<{ id: string }>, res: Response<string>) {
         try {
             let isBlog = await blogsService.findBlog(req.params.id);
             if (!isBlog) {
@@ -87,16 +80,9 @@ blogsRouter.delete(
             res.status(500).send("blogsRouter.delete/:id" + e)
         }
     }
-);
-blogsRouter.post(
-    "/",
-    baseAuthMiddleware,
-    nameValidation,
-    descriptionValidation,
-    websiteValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<blogCreateType>,
-           res: Response<blogViewType | string>) => {
+
+    async createBlog(req: RequestWithBody<blogCreateType>,
+                     res: Response<blogViewType | string>) {
         try {
             const newBlog = await blogsService.createBlog(
                 req.body.name,
@@ -108,18 +94,11 @@ blogsRouter.post(
             res.status(500).send("blogsRouter.post/" + e)
         }
     }
-);
-blogsRouter.post(
-    "/:blogId/posts/",
-    baseAuthMiddleware,
-    titleValidation,
-    shortDesValidation,
-    contentValidation,
-    inputValMiddleware,
-    async (
+
+    async createPostForBlog(
         req: RequestWithUrlAndBody<{ blogId: string }, postWithBlogIdCreteType>,
         res: Response<postViewType | string>
-    ) => {
+    ) {
         try {
             const getBlog = await blogsQwRepository.findBlog(req.params.blogId);
             if (!getBlog) {
@@ -138,18 +117,11 @@ blogsRouter.post(
             res.status(500).send("blogsRouter.post/:blogId/posts" + e)
         }
     }
-);
-blogsRouter.put(
-    "/:id",
-    baseAuthMiddleware,
-    nameValidation,
-    descriptionValidation,
-    websiteValidation,
-    inputValMiddleware,
-    async (
+
+    async updateBlog(
         req: RequestWithUrlAndBody<{ id: string }, blogUpdateType>,
         res: Response<string>
-    ) => {
+    ) {
         try {
             let isBlog = await blogsService.findBlog(req.params.id);
             if (!isBlog) {
@@ -168,13 +140,11 @@ blogsRouter.put(
             res.status(500).send("blogsRouter.put/:id" + e)
         }
     }
-);
-blogsRouter.get(
-    "/:blogId/posts",
-    async (
+
+    async getPostsByBlogId(
         req: RequestWithUrlAndQuery<{ blogId: string }, postQueryType>,
         res: Response<postsViewType | string>
-    ) => {
+    ) {
         try {
             const getBlog = await blogsService.findBlog(req.params.blogId);
             if (getBlog) {
@@ -197,6 +167,39 @@ blogsRouter.get(
         } catch (e) {
             res.status(500).send("blogsRouter.get/:blogId/posts" + e)
         }
-
     }
-);
+}
+
+const blogsController = new BlogsController()
+blogsRouter.get("/", blogsController.getAllUsers.bind(blogsController));
+blogsRouter.get("/:id", blogsController.getBlogById.bind(blogsController));
+blogsRouter.delete("/:id",
+    baseAuthMiddleware,
+    blogsController.deleteBlogById.bind(blogsController));
+blogsRouter.post(
+    "/",
+    baseAuthMiddleware,
+    nameValidation,
+    descriptionValidation,
+    websiteValidation,
+    inputValMiddleware,
+    blogsController.createBlog.bind(blogsController));
+blogsRouter.post(
+    "/:blogId/posts/",
+    baseAuthMiddleware,
+    titleValidation,
+    shortDesValidation,
+    contentValidation,
+    inputValMiddleware,
+    blogsController.createPostForBlog.bind(blogsController));
+blogsRouter.put(
+    "/:id",
+    baseAuthMiddleware,
+    nameValidation,
+    descriptionValidation,
+    websiteValidation,
+    inputValMiddleware,
+    blogsController.updateBlog.bind(blogsController));
+blogsRouter.get(
+    "/:blogId/posts",
+    blogsController.getPostsByBlogId.bind(blogsController));
