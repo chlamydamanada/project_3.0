@@ -29,10 +29,9 @@ import {commentsViewType} from "../models/commentsViewModel";
 
 export const postsRouter = Router();
 
-postsRouter.get(
-    "/",
-    async (req: RequestWithQuery<postQueryType>,
-           res: Response<postsViewType | string>) => {
+class PostsController {
+    async getAllPosts(req: RequestWithQuery<postQueryType>,
+                      res: Response<postsViewType | string>) {
         try {
             const {sortBy, pageNumber, pageSize, sortDirection} = req.query;
             let sortField: string = sortBy ? sortBy : "createdAt";
@@ -45,11 +44,9 @@ postsRouter.get(
             res.status(500).send("postsRouter.get/" + e)
         }
     }
-);
-postsRouter.get(
-    "/:id",
-    async (req: RequestWithURL<{ id: string }>,
-           res: Response<postViewType | string>) => {
+
+    async getPostById(req: RequestWithURL<{ id: string }>,
+                      res: Response<postViewType | string>) {
         try {
             let post = await postsQwRepository.findPost(req.params.id);
             if (!post) {
@@ -61,12 +58,9 @@ postsRouter.get(
             res.status(500).send("postsRouter.get/:id" + e)
         }
     }
-);
-postsRouter.delete(
-    "/:id",
-    baseAuthMiddleware,
-    async (req: RequestWithURL<{ id: string }>,
-           res: Response<string>) => {
+
+    async deletePostById(req: RequestWithURL<{ id: string }>,
+                         res: Response<string>) {
         try {
             let isPost = await postsService.findPost(req.params.id);
             if (!isPost) {
@@ -79,17 +73,9 @@ postsRouter.delete(
             res.status(500).send("postsRouter.delete/:id" + e)
         }
     }
-);
-postsRouter.post(
-    "/",
-    baseAuthMiddleware,
-    blogIdValidation,
-    titleValidation,
-    shortDesValidation,
-    contentValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<postCreateType>,
-           res: Response<postViewType | string>) => {
+
+    async createPost(req: RequestWithBody<postCreateType>,
+                     res: Response<postViewType | string>) {
         try {
             const getBlog = await blogsQwRepository.findBlog(req.body.blogId);
             if (getBlog) {
@@ -106,19 +92,11 @@ postsRouter.post(
             res.status(500).send("postsRouter.post/" + e)
         }
     }
-);
-postsRouter.put(
-    "/:id",
-    baseAuthMiddleware,
-    blogIdValidation,
-    titleValidation,
-    shortDesValidation,
-    contentValidation,
-    inputValMiddleware,
-    async (
+
+    async updatePost(
         req: RequestWithUrlAndBody<{ id: string }, postUpdateType>,
         res: Response<string>
-    ) => {
+    ) {
         try {
             const isPost = await postsService.findPost(req.params.id);
             if (!isPost) {
@@ -137,16 +115,11 @@ postsRouter.put(
             res.status(500).send("postsRouter.put/:id" + e)
         }
     }
-);
-postsRouter.post(
-    "/:postId/comments",
-    bearerAuthMiddleware,
-    contentOfCommentsMiddleware,
-    inputValMiddleware,
-    async (
+
+    async createCommentByPostId(
         req: RequestWithUrlAndBody<{ postId: string }, { content: string }>,
         res: Response<commentViewType | string>
-    ) => {
+    ) {
         try {
             const isPost = await postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
@@ -164,13 +137,11 @@ postsRouter.post(
             res.status(500).send("postsRouter.post/:postId/comments" + e)
         }
     }
-);
-postsRouter.get(
-    "/:postId/comments",
-    async (
+
+    async getCommentsByPostId(
         req: RequestWithUrlAndQuery<{ postId: string }, postQueryType>,
         res: Response<commentsViewType | string>
-    ) => {
+    ) {
         try {
             const isPost = await postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
@@ -200,4 +171,40 @@ postsRouter.get(
             res.status(500).send("postsRouter.get/:postId/comments" + e)
         }
     }
-);
+}
+
+const postsController = new PostsController();
+
+postsRouter.get("/", postsController.getAllPosts.bind(postsController));
+postsRouter.get(
+    "/:id", postsController.getPostById.bind(postsController));
+postsRouter.delete(
+    "/:id",
+    baseAuthMiddleware,
+    postsController.deletePostById.bind(postsController));
+postsRouter.post(
+    "/",
+    baseAuthMiddleware,
+    blogIdValidation,
+    titleValidation,
+    shortDesValidation,
+    contentValidation,
+    inputValMiddleware,
+    postsController.createPost.bind(postsController));
+postsRouter.put(
+    "/:id",
+    baseAuthMiddleware,
+    blogIdValidation,
+    titleValidation,
+    shortDesValidation,
+    contentValidation,
+    inputValMiddleware,
+    postsController.updatePost.bind(postsController));
+postsRouter.post(
+    "/:postId/comments",
+    bearerAuthMiddleware,
+    contentOfCommentsMiddleware,
+    inputValMiddleware,
+    postsController.createCommentByPostId.bind(postsController));
+postsRouter.get(
+    "/:postId/comments", postsController.getCommentsByPostId.bind(postsController));

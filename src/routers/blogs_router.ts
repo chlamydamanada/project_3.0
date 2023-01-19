@@ -171,6 +171,7 @@ class BlogsController {
 }
 
 const blogsController = new BlogsController()
+
 blogsRouter.get("/", blogsController.getAllUsers.bind(blogsController));
 blogsRouter.get("/:id", blogsController.getBlogById.bind(blogsController));
 blogsRouter.delete("/:id",

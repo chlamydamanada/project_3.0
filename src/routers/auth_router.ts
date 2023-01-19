@@ -32,6 +32,10 @@ import {loginCreateType} from "../models/loginCreateModel";
 
 export const authRouter = Router();
 
+class AuthController {
+
+}
+
 authRouter.post(
     "/login",
     limiterLogin,
