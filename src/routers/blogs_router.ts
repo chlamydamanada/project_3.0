@@ -95,10 +95,8 @@ class BlogsController {
         }
     }
 
-    async createPostForBlog(
-        req: RequestWithUrlAndBody<{ blogId: string }, postWithBlogIdCreteType>,
-        res: Response<postViewType | string>
-    ) {
+    async createPostForBlog(req: RequestWithUrlAndBody<{ blogId: string }, postWithBlogIdCreteType>,
+                            res: Response<postViewType | string>) {
         try {
             const getBlog = await blogsQwRepository.findBlog(req.params.blogId);
             if (!getBlog) {
@@ -118,10 +116,8 @@ class BlogsController {
         }
     }
 
-    async updateBlog(
-        req: RequestWithUrlAndBody<{ id: string }, blogUpdateType>,
-        res: Response<string>
-    ) {
+    async updateBlog(req: RequestWithUrlAndBody<{ id: string }, blogUpdateType>,
+                     res: Response<string>) {
         try {
             let isBlog = await blogsService.findBlog(req.params.id);
             if (!isBlog) {
@@ -141,10 +137,8 @@ class BlogsController {
         }
     }
 
-    async getPostsByBlogId(
-        req: RequestWithUrlAndQuery<{ blogId: string }, postQueryType>,
-        res: Response<postsViewType | string>
-    ) {
+    async getPostsByBlogId(req: RequestWithUrlAndQuery<{ blogId: string }, postQueryType>,
+                           res: Response<postsViewType | string>) {
         try {
             const getBlog = await blogsService.findBlog(req.params.blogId);
             if (getBlog) {
@@ -172,8 +166,10 @@ class BlogsController {
 
 const blogsController = new BlogsController()
 
-blogsRouter.get("/", blogsController.getAllUsers.bind(blogsController));
-blogsRouter.get("/:id", blogsController.getBlogById.bind(blogsController));
+blogsRouter.get("/",
+    blogsController.getAllUsers.bind(blogsController));
+blogsRouter.get("/:id",
+    blogsController.getBlogById.bind(blogsController));
 blogsRouter.delete("/:id",
     baseAuthMiddleware,
     blogsController.deleteBlogById.bind(blogsController));

@@ -93,10 +93,8 @@ class PostsController {
         }
     }
 
-    async updatePost(
-        req: RequestWithUrlAndBody<{ id: string }, postUpdateType>,
-        res: Response<string>
-    ) {
+    async updatePost(req: RequestWithUrlAndBody<{ id: string }, postUpdateType>,
+                     res: Response<string>) {
         try {
             const isPost = await postsService.findPost(req.params.id);
             if (!isPost) {
@@ -116,10 +114,8 @@ class PostsController {
         }
     }
 
-    async createCommentByPostId(
-        req: RequestWithUrlAndBody<{ postId: string }, { content: string }>,
-        res: Response<commentViewType | string>
-    ) {
+    async createCommentByPostId(req: RequestWithUrlAndBody<{ postId: string }, { content: string }>,
+                                res: Response<commentViewType | string>) {
         try {
             const isPost = await postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
@@ -138,10 +134,8 @@ class PostsController {
         }
     }
 
-    async getCommentsByPostId(
-        req: RequestWithUrlAndQuery<{ postId: string }, postQueryType>,
-        res: Response<commentsViewType | string>
-    ) {
+    async getCommentsByPostId(req: RequestWithUrlAndQuery<{ postId: string }, postQueryType>,
+                              res: Response<commentsViewType | string>) {
         try {
             const isPost = await postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
@@ -175,9 +169,11 @@ class PostsController {
 
 const postsController = new PostsController();
 
-postsRouter.get("/", postsController.getAllPosts.bind(postsController));
+postsRouter.get("/",
+    postsController.getAllPosts.bind(postsController));
 postsRouter.get(
-    "/:id", postsController.getPostById.bind(postsController));
+    "/:id",
+    postsController.getPostById.bind(postsController));
 postsRouter.delete(
     "/:id",
     baseAuthMiddleware,
@@ -207,4 +203,5 @@ postsRouter.post(
     inputValMiddleware,
     postsController.createCommentByPostId.bind(postsController));
 postsRouter.get(
-    "/:postId/comments", postsController.getCommentsByPostId.bind(postsController));
+    "/:postId/comments",
+    postsController.getCommentsByPostId.bind(postsController));

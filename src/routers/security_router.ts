@@ -1,4 +1,4 @@
-import {Request, Response, Router} from "express";
+import {Response, Router} from "express";
 import {refreshTokenMiddleware} from "../middlewares/refreshToken.middleware";
 import {authRepository} from "../repositories/auth_repository";
 import {authService} from "../domain/auth_service";
@@ -9,10 +9,9 @@ import {userViewType} from "../models/userViewModel";
 
 export const securityRouter = Router();
 
-securityRouter.get(
-    "/",
-    refreshTokenMiddleware,
-    async (req: RequestWithUser<userViewType>, res: Response<deviceViewType[] | string>) => {
+class SecurityController {
+    async getAllDevices(req: RequestWithUser<userViewType>,
+                        res: Response<deviceViewType[] | string>) {
         try {
             if (req.user) {
                 const allDevices = await authRepository.findAllDevices(req.user.id);
@@ -22,12 +21,9 @@ securityRouter.get(
             res.status(500).send("securityRouter.get/" + e)
         }
     }
-);
-securityRouter.delete(
-    "/",
-    refreshTokenMiddleware,
-    async (req: RequestWithUserAndDeviceId<{deviceId: string}, userViewType>
-           , res: Response<string>) => {
+
+    async deleteAllDevicesByIdExceptThis(req: RequestWithUserAndDeviceId<{ deviceId: string }, userViewType>,
+                                         res: Response<string>) {
         try {
             if (req.user) {
                 await authService.deleteAllRefreshTokenMetaByIdExceptMy(
@@ -40,12 +36,9 @@ securityRouter.delete(
             res.status(500).send("securityRouter.delete/" + e)
         }
     }
-);
-securityRouter.delete(
-    "/:deviceId",
-    refreshTokenMiddleware,
-    deviceIdConformityMiddleware,
-    async (req: RequestWithURL<{deviceId: string}>, res: Response<string>) => {
+
+    async deleteDeviceById(req: RequestWithURL<{ deviceId: string }>,
+                           res: Response<string>) {
         try {
             const isDel = await authService.deleteRefreshTokenMetaByToken(
                 req.params.deviceId
@@ -59,4 +52,22 @@ securityRouter.delete(
             res.status(500).send("securityRouter.delete/:deviceId" + e)
         }
     }
-);
+
+}
+
+
+const securityController = new SecurityController();
+
+securityRouter.get(
+    "/",
+    refreshTokenMiddleware,
+    securityController.getAllDevices.bind(securityController));
+securityRouter.delete(
+    "/",
+    refreshTokenMiddleware,
+    securityController.deleteAllDevicesByIdExceptThis.bind(securityController));
+securityRouter.delete(
+    "/:deviceId",
+    refreshTokenMiddleware,
+    deviceIdConformityMiddleware,
+    securityController.deleteDeviceById.bind(securityController));
