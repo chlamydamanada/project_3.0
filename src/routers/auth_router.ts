@@ -1,4 +1,4 @@
-import {Request, Response, Router} from "express";
+import {Response, Router} from "express";
 import {
     RequestWithBody,
     RequestWithDeviceId,
@@ -20,7 +20,9 @@ import {loginExistValidation} from "../middlewares/loginExist.middleware";
 import {meViewType} from "../models/meViewModel";
 import {refreshTokenMiddleware} from "../middlewares/refreshToken.middleware";
 import {
-    limiterLogin, limiterNewPassword, limiterPasswordRecovery,
+    limiterLogin,
+    limiterNewPassword,
+    limiterPasswordRecovery,
     limiterRegistration,
     limiterRegistrationConfirmation,
     limiterRegistrationEmailResending,
@@ -33,16 +35,8 @@ import {loginCreateType} from "../models/loginCreateModel";
 export const authRouter = Router();
 
 class AuthController {
-
-}
-
-authRouter.post(
-    "/login",
-    limiterLogin,
-    loginOrEmailValidation,
-    passwordValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<loginCreateType>, res: Response<{ accessToken: string } | string>) => {
+    async login(req: RequestWithBody<loginCreateType>,
+                res: Response<{ accessToken: string } | string>) {
         try {
             const user = await authService.checkCredentials(
                 req.body.loginOrEmail,
@@ -70,13 +64,9 @@ authRouter.post(
             res.status(500).send("authRouter.post/login" + e)
         }
     }
-);
 
-authRouter.post(
-    "/refresh-token",
-    refreshTokenMiddleware,
-    async (req: RequestWithUserAndDeviceId<{deviceId: string},
-        userViewType>, res: Response<{accessToken: string} | string>) => {
+    async createNewTokens(req: RequestWithUserAndDeviceId<{ deviceId: string }, userViewType>,
+                          res: Response<{ accessToken: string } | string>) {
         try {
             if (req.user) {
                 const accessToken = await authService.createAccessToken(req.user.id);
@@ -98,11 +88,9 @@ authRouter.post(
             res.status(500).send("authRouter.post/refresh-token" + e)
         }
     }
-);
-authRouter.post(
-    "/logout",
-    refreshTokenMiddleware,
-    async (req: RequestWithDeviceId<{deviceId: string}>, res: Response<string>) => {
+
+    async logout(req: RequestWithDeviceId<{ deviceId: string }>,
+                 res: Response<string>) {
         try {
             await authService.deleteRefreshTokenMetaByToken(req.deviceId!);
             res.clearCookie("refreshToken").sendStatus(204);
@@ -110,11 +98,9 @@ authRouter.post(
             res.status(500).send("authRouter.post/logout" + e)
         }
     }
-);
-authRouter.get(
-    "/me",
-    bearerAuthMiddleware,
-    async (req: RequestWithUser<userViewType>, res: Response<meViewType | string>) => {
+
+    async me(req: RequestWithUser<userViewType>,
+             res: Response<meViewType | string>) {
         try {
             if (req.user) {
                 const me: meViewType = {
@@ -129,17 +115,9 @@ authRouter.get(
             res.status(500).send("authRouter.get/me" + e)
         }
     }
-);
-authRouter.post(
-    "/registration",
-    limiterRegistration,
-    passwordValidation,
-    loginValidation,
-    loginExistValidation,
-    emailValidation,
-    emailExistValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<userCreateType>, res: Response<string>) => {
+
+    async registration(req: RequestWithBody<userCreateType>,
+                       res: Response<string>) {
         try {
             await authService.createUser(
                 req.body.login,
@@ -151,13 +129,9 @@ authRouter.post(
             res.status(500).send("authRouter.post/registration" + e)
         }
     }
-);
-authRouter.post(
-    "/registration-confirmation",
-    limiterRegistrationConfirmation,
-    codeValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<{ code: string }>, res: Response<string>) => {
+
+    async registrationConfirmation(req: RequestWithBody<{ code: string }>,
+                                   res: Response<string>) {
         try {
             const isConfirmed = await authService.confirmEmail(req.body.code);
             if (isConfirmed) {
@@ -169,15 +143,9 @@ authRouter.post(
             res.status(500).send("authRouter.post/registration-confirmation" + e)
         }
     }
-);
 
-authRouter.post(
-    "/registration-email-resending",
-    limiterRegistrationEmailResending,
-    emailValidation,
-    emailIsConfirmedValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<{ email: string }>, res: Response<string>) => {
+    async registrationEmailResending(req: RequestWithBody<{ email: string }>,
+                                     res: Response<string>) {
         try {
             const result = await authService.checkEmailIsConfirmed(req.body.email);
             if (result) {
@@ -189,12 +157,9 @@ authRouter.post(
             res.status(500).send("authRouter.post/registration-email-resending" + e)
         }
     }
-);
-authRouter.post("/password-recovery",
-    limiterPasswordRecovery,
-    emailValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<{email: string}>, res: Response<string>) => {
+
+    async passwordRecovery(req: RequestWithBody<{ email: string }>,
+                           res: Response<string>) {
         try {
             const user = await usersDbRepository.findUserByLoginOrEmail(req.body.email)
             if (user) {
@@ -204,13 +169,10 @@ authRouter.post("/password-recovery",
         } catch (e) {
             res.status(500).send("authRouter.post/password-recovery" + e)
         }
-    });
-authRouter.post("/new-password",
-    limiterNewPassword,
-    recoveryCodeValidation,
-    newPasswordValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<newPasswordCreateType>, res: Response<string>) => {
+    }
+
+    async newPassword(req: RequestWithBody<newPasswordCreateType>,
+                      res: Response<string>) {
         try {
             await authService.updatePasswordByRecoveryCode(
                 req.body.recoveryCode,
@@ -219,4 +181,64 @@ authRouter.post("/new-password",
         } catch (e) {
             res.status(500).send("authRouter.post/new-password" + e)
         }
-    });
+    }
+
+}
+
+const authController = new AuthController();
+
+authRouter.post(
+    "/login",
+    limiterLogin,
+    loginOrEmailValidation,
+    passwordValidation,
+    inputValMiddleware,
+    authController.login.bind(authController));
+
+authRouter.post(
+    "/refresh-token",
+    refreshTokenMiddleware,
+    authController.createNewTokens.bind(authController));
+authRouter.post(
+    "/logout",
+    refreshTokenMiddleware,
+    authController.logout.bind(authController));
+authRouter.get(
+    "/me",
+    bearerAuthMiddleware,
+    authController.me.bind(authController));
+authRouter.post(
+    "/registration",
+    limiterRegistration,
+    passwordValidation,
+    loginValidation,
+    loginExistValidation,
+    emailValidation,
+    emailExistValidation,
+    inputValMiddleware,
+    authController.registration.bind(authController));
+authRouter.post(
+    "/registration-confirmation",
+    limiterRegistrationConfirmation,
+    codeValidation,
+    inputValMiddleware,
+    authController.registrationConfirmation.bind(authController));
+
+authRouter.post(
+    "/registration-email-resending",
+    limiterRegistrationEmailResending,
+    emailValidation,
+    emailIsConfirmedValidation,
+    inputValMiddleware,
+    authController.registrationEmailResending.bind(authController));
+authRouter.post("/password-recovery",
+    limiterPasswordRecovery,
+    emailValidation,
+    inputValMiddleware,
+    authController.passwordRecovery.bind(authController));
+authRouter.post("/new-password",
+    limiterNewPassword,
+    recoveryCodeValidation,
+    newPasswordValidation,
+    inputValMiddleware,
+    authController.newPassword.bind(authController));
