@@ -45,5 +45,6 @@ class CommentsQweryRepositoryClass {
       return undefined;
     }
   }
+
 };
 export const commentsQweryRepository = new CommentsQweryRepositoryClass();

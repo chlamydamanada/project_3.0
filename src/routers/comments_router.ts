@@ -6,7 +6,8 @@ import {userIsOwnerOfCommentMiddleware} from "../middlewares/userIsOwnerOfCommen
 import {contentOfCommentsMiddleware} from "../middlewares/contentOfComments.middleware";
 import {inputValMiddleware} from "../middlewares/inputValue.middleware";
 import {commentViewType} from "../models/commentViewModel";
-import {RequestWithURL} from "../models/request_types";
+import {RequestWithURL, RequestWithUrlAndBody} from "../models/request_types";
+import {commentStatusValidation} from "../middlewares/commentStatus.middleware";
 
 export const commentsRouter = Router();
 
@@ -56,6 +57,29 @@ commentsRouter.put(
             if (newComment) {
                 res.sendStatus(204);
             }
+        } catch (e) {
+            res.status(500).send("commentsRouter.put/:commentId" + e)
+        }
+    }
+);
+commentsRouter.put(
+    "/:commentId/like-status",
+    bearerAuthMiddleware,
+    commentStatusValidation,
+    inputValMiddleware,
+    async (req: RequestWithUrlAndBody<{ commentId: string }, {likeStatus: string}>,
+           res: Response<string>) => {
+        try {
+            const comment = await commentsQweryRepository.findCommentById(req.params.commentId);
+           if (!comment){
+               res.sendStatus(404);
+           }
+           await commentsService.generateStatusOfComment(
+               req.params.commentId,
+               req.user!.id,
+               req.body.likeStatus)
+                res.sendStatus(204);
+
         } catch (e) {
             res.status(500).send("commentsRouter.put/:commentId" + e)
         }
