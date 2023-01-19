@@ -19,14 +19,10 @@ import {sortingQueryFields} from "../helpers/sortingFields";
 
 export const usersRouter = Router();
 
-usersRouter.get(
-    "/",
-
-    baseAuthMiddleware,
-    async (
-        req: RequestWithQuery<userQueryType>,
-        res: Response<usersViewType | string>
-    ) => {
+class UserController {
+    async getAllUsers(req: RequestWithQuery<userQueryType>,
+                      res: Response<usersViewType | string>
+    ) {
         try {
             const queryFilter = sortingQueryFields.queryFilter(req.query);
             const allUsers = await usersQwRepository.findAllUsers(
@@ -43,15 +39,9 @@ usersRouter.get(
             res.status(500).send("usersRouter.get/" + e)
         }
     }
-);
-usersRouter.post(
-    "/",
-    baseAuthMiddleware,
-    passwordValidation,
-    loginValidation,
-    emailValidation,
-    inputValMiddleware,
-    async (req: RequestWithBody<userCreateType>, res: Response<userViewType | string>) => {
+
+    async createUser(req: RequestWithBody<userCreateType>,
+                     res: Response<userViewType | string>) {
         try {
             const userId = await usersService.createUser(
                 req.body.login,
@@ -64,12 +54,9 @@ usersRouter.post(
             res.status(500).send("usersRouter.post/" + e)
         }
     }
-);
-usersRouter.delete(
-    "/:id",
-    baseAuthMiddleware,
-    inputValMiddleware,
-    async (req: RequestWithURL<{ id: string }>, res: Response<string>) => {
+
+    async deleteUserById(req: RequestWithURL<{ id: string }>,
+                         res: Response<string>) {
         try {
             const isUser = await usersService.findUserById(req.params.id);
             if (isUser) {
@@ -82,4 +69,24 @@ usersRouter.delete(
             res.status(500).send("" + e)
         }
     }
-);
+}
+
+const userController = new UserController();
+
+usersRouter.get(
+    "/",
+    baseAuthMiddleware,
+    userController.getAllUsers.bind(userController));
+usersRouter.post(
+    "/",
+    baseAuthMiddleware,
+    passwordValidation,
+    loginValidation,
+    emailValidation,
+    inputValMiddleware,
+    userController.createUser.bind(userController));
+usersRouter.delete(
+    "/:id",
+    baseAuthMiddleware,
+    inputValMiddleware,
+    userController.deleteUserById.bind(userController));
