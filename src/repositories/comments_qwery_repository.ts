@@ -21,10 +21,17 @@ export class CommentsQweryRepositoryClass {
             .skip((pN - 1) * pS)
             .limit(pS)
             .lean();
-        const items = Promise.all(comments.map(async c => {
-            const result = await mappers.commentMapper(c, userId);
-            return result
-        }));
+        console.log("COMMENTS:", comments)
+        const items = await mappers.commentsMapper(comments, userId);
+
+
+
+
+
+
+            console.log("ITEMS:", items)
+
+
         return getArrayWithPagination(totalCount,
             pS,
             pN,

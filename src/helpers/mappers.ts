@@ -1,7 +1,7 @@
 import {likeStatusOfCommentsModel} from "../repositories/db";
 
 export const mappers = {
-    blogMapper(blog: any){
+    blogMapper(blog: any) {
         return {
             id: blog._id.toString(),
             name: blog.name,
@@ -10,7 +10,7 @@ export const mappers = {
             createdAt: blog.createdAt,
         };
     },
-    blogsMapper(blogs: any[]){
+    blogsMapper(blogs: any[]) {
         const result = blogs.map((b) => ({
             id: b._id.toString(),
             name: b.name,
@@ -20,7 +20,7 @@ export const mappers = {
         }));
         return result;
     },
-    postsMapper(posts: any[]){
+    postsMapper(posts: any[]) {
         const result = posts.map((p) => ({
             id: p._id.toString(),
             title: p.title,
@@ -32,30 +32,68 @@ export const mappers = {
         }))
         return result;
     },
-    postMapper(){},
-    userMapper(){},
-    usersMapper(){},
-    async commentMapper(comment:any, userId?: string| undefined | null){
-      let userStatus:string | undefined;
-        if(userId){
-          const userLikeStatus = await likeStatusOfCommentsModel.findOne({commentId: comment._id.toString(), userId: userId})
-            userStatus =  userLikeStatus?.likeStatus
-      }
-        const newComment = {
-          id: comment._id.toString(),
-          content: comment.content,
-          userId: comment.userId,
-          userLogin: comment.userLogin,
-          createdAt: comment.createdAt,
-          likesInfo: {
-              likesCount: await likeStatusOfCommentsModel
-                  .count({commentId: comment._id.toString(), likeStatus: "Like" }),
-              dislikesCount: await likeStatusOfCommentsModel
-                  .count({commentId: comment._id.toString(), likeStatus: "Dislike" }),
-              myStatus: userStatus? userStatus :"None"
-          }
-      }
-      return newComment;
+    postMapper() {
     },
-
+    userMapper() {
+    },
+    usersMapper() {
+    },
+    async commentMapper(comment: any, userId?: string | undefined | null) {
+        let userStatus: string | undefined;
+        if (userId) {
+            const userLikeStatus = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
+            userStatus = userLikeStatus?.likeStatus
+        }
+        const newComment = {
+            id: comment._id.toString(),
+            content: comment.content,
+            userId: comment.userId,
+            userLogin: comment.userLogin,
+            createdAt: comment.createdAt,
+            likesInfo: {
+                likesCount: await likeStatusOfCommentsModel
+                    .count({commentId: comment._id, likeStatus: "Like"}),
+                dislikesCount: await likeStatusOfCommentsModel
+                    .count({commentId: comment._id, likeStatus: "Dislike"}),
+                myStatus: userStatus ? userStatus : "None"
+            }
+        }
+        return newComment;
+    },
+    async commentsMapper(comments: any[], userId?: string | undefined | null) {
+        const result = await Promise.all(comments.map(async comment => {
+            const item = await this.commentMapper(comment, userId)
+            return item
+        }))
+        return result
+    },
 }
+
+
+/*}
+    let userStatus:string | undefined;
+    if(userId){
+        const userLikeStatus = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
+        userStatus =  userLikeStatus?.likeStatus
+
+        {id: comment._id.toString(),
+            content: comment.content,
+            userId: comment.userId,
+            userLogin: comment.userLogin,
+            createdAt: comment.createdAt,
+            likesInfo: {
+                likesCount: await likeStatusOfCommentsModel
+                    .count({commentId: comment._id, likeStatus: "Like" }),
+                dislikesCount: await likeStatusOfCommentsModel
+                    .count({commentId: comment._id, likeStatus: "Dislike" }),
+                myStatus: userStatus? userStatus :"None"}
+
+
+
+}}))
+    return result;
+
+
+},
+
+}*/
