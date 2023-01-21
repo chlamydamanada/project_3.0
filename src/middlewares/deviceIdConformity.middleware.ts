@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { authRepository } from "../repositories/auth_repository";
+import {AuthRepositoryClass} from "../repositories/auth_repository";
 
 export const deviceIdConformityMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const authRepository = new AuthRepositoryClass();//create instance
   const device = await authRepository.findRefreshTokenMeta(req.params.deviceId);
   if (!device) {
     res.status(404).send("The device not found");

@@ -1,38 +1,47 @@
-import {commentsRepository} from "../repositories/comments_db_repository";
+import {CommentsDbRepositoryClass} from "../repositories/comments_db_repository";
 import {userViewType} from "../models/userViewModel";
 import {commentDbType} from "../models/commentDbModel";
 import {commentViewType} from "../models/commentViewModel";
 import {CommentsDbClass} from "../classes/CommentsDbClass";
 import {LikeStatusOfCommentClass} from "../classes/LikeOfCommentsClass";
 
-class CommentsService {
+export class CommentsService {
+    commentsDbRepository: CommentsDbRepositoryClass
+
+    constructor() {
+        this.commentsDbRepository = new CommentsDbRepositoryClass()
+    }
+
     async createComment(
         content: string,
         user: userViewType,
         postId: string
-    ): Promise<commentViewType> {
+    ): Promise<string> {
         const newComment: commentDbType = new CommentsDbClass(
             postId,
             content,
             user.id,
             user.login
         );
-        return await commentsRepository.createComment(newComment);
+        return await this.commentsDbRepository.createComment(newComment);
     }
+
     async deleteComment(commentId: string): Promise<boolean> {
-        return await commentsRepository.deleteComment(commentId);
+        return await this.commentsDbRepository.deleteComment(commentId);
     }
+
     async updateComment(commentId: string, content: string): Promise<boolean> {
-        return await commentsRepository.updateComment(commentId, content);
+        return await this.commentsDbRepository.updateComment(commentId, content);
     }
-    async generateStatusOfComment(commentId: string, userId: string, status: string){
-        const statusOfComment = await commentsRepository.findStatusOfComment(commentId, userId);
-        if(!statusOfComment){
+
+    async generateStatusOfComment(commentId: string, userId: string, status: string) {
+        const statusOfComment = await this.commentsDbRepository.findStatusOfComment(commentId, userId);
+        if (!statusOfComment) {
             const newStatus = new LikeStatusOfCommentClass(commentId, userId, status);
-            await commentsRepository.createStatusOfComment(newStatus);
+            await this.commentsDbRepository.createStatusOfComment(newStatus);
         }
-        await commentsRepository.updateStatusOfComment(commentId, userId, status)
+        await this.commentsDbRepository.updateStatusOfComment(commentId, userId, status)
     }
 }
 
-export const commentsService = new CommentsService();
+

@@ -1,3 +1,4 @@
+import {likeStatusOfCommentsModel} from "../repositories/db";
 
 export const mappers = {
     blogMapper(blog: any){
@@ -34,6 +35,27 @@ export const mappers = {
     postMapper(){},
     userMapper(){},
     usersMapper(){},
-    commentMapper(){},
-    commentsMapper(){}
+    async commentMapper(comment:any, userId?: string| undefined | null){
+      let userStatus:string | undefined;
+        if(userId){
+          const userLikeStatus = await likeStatusOfCommentsModel.findOne({commentId: comment._id.toString(), userId: userId})
+            userStatus =  userLikeStatus?.likeStatus
+      }
+        const newComment = {
+          id: comment._id.toString(),
+          content: comment.content,
+          userId: comment.userId,
+          userLogin: comment.userLogin,
+          createdAt: comment.createdAt,
+          likesInfo: {
+              likesCount: await likeStatusOfCommentsModel
+                  .count({commentId: comment._id.toString(), likeStatus: "Like" }),
+              dislikesCount: await likeStatusOfCommentsModel
+                  .count({commentId: comment._id.toString(), likeStatus: "Dislike" }),
+              myStatus: userStatus? userStatus :"None"
+          }
+      }
+      return newComment;
+    },
+
 }

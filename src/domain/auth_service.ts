@@ -1,18 +1,26 @@
-import {usersDbRepository} from "../repositories/users_db_repository";
+import {UsersDbRepositoryClass} from "../repositories/users_db_repository";
 import jwt from "jsonwebtoken";
 import {settings} from "../settings/settings";
 import {userDbType} from "../models/userDBModel";
 import {v4 as uuidv4} from "uuid";
 import {emailAdapter} from "../adapters/email_adapter";
 import {jwtService} from "../application/jwt_service";
-import {authRepository} from "../repositories/auth_repository";
+import {AuthRepositoryClass} from "../repositories/auth_repository";
 import {createNewConfirmationCode} from "../helpers/createNewConfirmationCode";
 import {generateHash, generateSalt} from "../helpers/generator_Hash";
 import {UserDbClass} from "../classes/UserDbClass";
+import {userAuthServiceType} from "../models/userAuthServiceModel";
 
-class AuthServiceClass  {
+export class AuthServiceClass  {
+    authRepository : AuthRepositoryClass
+    usersDbRepository : UsersDbRepositoryClass
+    constructor() {
+        this.authRepository = new AuthRepositoryClass()
+        this.usersDbRepository = new UsersDbRepositoryClass()
+    }
+
     async checkCredentials(loginOrEmail: string, password: string) {
-        const user = await usersDbRepository.findUserByLoginOrEmail(loginOrEmail);
+        const user = await this.usersDbRepository.findUserByLoginOrEmail(loginOrEmail);
         if (!user) return false;
         const salt = user.hash.slice(0, 29);
         const userHash = await generateHash(password, salt);
@@ -22,9 +30,17 @@ class AuthServiceClass  {
             return false;
         }
     }
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<userAuthServiceType | undefined> {
+        const user = await this.usersDbRepository.findUserByLoginOrEmail(loginOrEmail);
+        return user;
+    }
+    async findAllDevices(userId: string){
+        const allDevices = await this.authRepository.findAllDevices(userId);
+        return allDevices;
+    }
     async createAccessToken(userID: string) {
         const token = jwt.sign({userId: userID}, settings.jwt_secretAT, {
-            expiresIn: "10 seconds",
+            expiresIn: "1000 seconds",
         });
         return {
             accessToken: token,
@@ -38,7 +54,7 @@ class AuthServiceClass  {
         const deviceId = uuidv4();
         const token = await jwtService.createRefreshToken(userId, deviceId);
         const tokenInfo = await jwtService.decodeRefreshToken(token);
-        await authRepository.createRefreshTokenMeta({
+        await this.authRepository.createRefreshTokenMeta({
             deviceId,
             ip: ip,
             title: title,
@@ -51,7 +67,7 @@ class AuthServiceClass  {
     async updateRefreshToken(userId: string, ip: string, deviceId: string) {
         const token = await jwtService.createRefreshToken(userId, deviceId);
         const tokenInfo = await jwtService.decodeRefreshToken(token);
-        await authRepository.updateRefreshTokenMeta({
+        await this.authRepository.updateRefreshTokenMeta({
             deviceId: deviceId,
             ip: ip,
             lastActiveDate: tokenInfo.iat!,
@@ -69,14 +85,14 @@ class AuthServiceClass  {
         }
     }
     async deleteRefreshTokenMetaByToken(deviceId: string): Promise<boolean> {
-        const isDelRT = await authRepository.deleteRefreshTokenMeta(deviceId);
+        const isDelRT = await this.authRepository.deleteRefreshTokenMeta(deviceId);
         return isDelRT;
     }
     async deleteAllRefreshTokenMetaByIdExceptMy(
         userId: string,
         deviceId: string
     ): Promise<boolean> {
-        const isDelRT = await authRepository.deleteALLRefreshTokenMetaByIdExceptMy(
+        const isDelRT = await this.authRepository.deleteALLRefreshTokenMetaByIdExceptMy(
             userId,
             deviceId
         );
@@ -93,8 +109,8 @@ class AuthServiceClass  {
             passwordSalt
         );
         const newUser: userDbType = new UserDbClass(login, email, passwordHash)
-        const userId = await usersDbRepository.createUser(newUser);
-        const fullUser = await usersDbRepository.findFullUserById(userId);
+        const userId = await this.usersDbRepository.createUser(newUser);
+        const fullUser = await this.usersDbRepository.findFullUserById(userId);
         try {
             await emailAdapter.sendRegistrationEmail(fullUser);
         } catch (error) {
@@ -104,13 +120,13 @@ class AuthServiceClass  {
         return userId;
     }
     async confirmEmail(code: string): Promise<boolean> {
-        const user = await usersDbRepository.findUserByCode(code);
-        return await usersDbRepository.updateConfirmation(user._id);
+        const user = await this.usersDbRepository.findUserByCode(code);
+        return await this.usersDbRepository.updateConfirmation(user._id);
     }
     async checkEmailIsConfirmed(email: string) {
         const newEmailConfirmation = createNewConfirmationCode();
         const newUser =
-            await usersDbRepository.findByEmailAndUpdateEmailConfirmation(
+            await this.usersDbRepository.findByEmailAndUpdateEmailConfirmation(
                 email,
                 newEmailConfirmation
             );
@@ -124,7 +140,7 @@ class AuthServiceClass  {
     async makeRecoveryCode(email: string) {
         const newEmailConfirmation = createNewConfirmationCode();
         const newUser =
-            await usersDbRepository.findByEmailAndUpdateEmailConfirmation(
+            await this.usersDbRepository.findByEmailAndUpdateEmailConfirmation(
                 email,
                 newEmailConfirmation
             );
@@ -141,8 +157,8 @@ class AuthServiceClass  {
             password,
             passwordSalt
         );
-        await usersDbRepository.findByRecoveryCodeAndUpdatePasswordHash(code, passwordHash)
+        await this.usersDbRepository.findByRecoveryCodeAndUpdatePasswordHash(code, passwordHash)
     }
 };
 
-export const authService = new AuthServiceClass();
+

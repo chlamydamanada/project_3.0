@@ -1,7 +1,7 @@
 import {Response, Router} from "express";
-import {blogsService} from "../domain/blogs_service";
-import {blogsQwRepository} from "../repositories/blogs_qwery_repo";
-import {postsService} from "../domain/posts_service";
+import {BlogsService} from "../domain/blogs_service";
+import {BlogsQwRepositoryClass} from "../repositories/blogs_qwery_repo";
+import {PostsService} from "../domain/posts_service";
 import {
     RequestWithBody,
     RequestWithQuery,
@@ -30,6 +30,16 @@ import {postsViewType} from "../models/postsViewModel";
 export const blogsRouter = Router();
 
 class BlogsController {
+    private blogsService: BlogsService;
+    private postsService: PostsService;
+    private blogsQwRepository: BlogsQwRepositoryClass;
+
+    constructor() {
+        this.blogsService = new BlogsService()
+        this.postsService = new PostsService()
+        this.blogsQwRepository = new BlogsQwRepositoryClass()
+    }
+
     async getAllUsers(
         req: RequestWithQuery<blogQueryType>,
         res: Response<blogsViewType | string>
@@ -41,7 +51,7 @@ class BlogsController {
             let pN = pageNumber ? +pageNumber : 1;
             let pS = pageSize ? +pageSize : 10;
             let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
-            const blogs = await blogsQwRepository.findBlogs(
+            const blogs = await this.blogsQwRepository.findBlogs(
                 searchNameTerm,
                 pN,
                 pS,
@@ -57,7 +67,7 @@ class BlogsController {
     async getBlogById(req: RequestWithURL<{ id: string }>,
                       res: Response<blogViewType | string>) {
         try {
-            let blog = await blogsQwRepository.findBlog(req.params.id);
+            let blog = await this.blogsQwRepository.findBlog(req.params.id);
             if (!blog) {
                 res.sendStatus(404);
             }
@@ -69,11 +79,11 @@ class BlogsController {
 
     async deleteBlogById(req: RequestWithURL<{ id: string }>, res: Response<string>) {
         try {
-            let isBlog = await blogsService.findBlog(req.params.id);
+            let isBlog = await this.blogsService.findBlog(req.params.id);
             if (!isBlog) {
                 res.sendStatus(404);
             } else {
-                await blogsService.deleteBlog(req.params.id);
+                await this.blogsService.deleteBlog(req.params.id);
                 res.sendStatus(204);
             }
         } catch (e) {
@@ -84,7 +94,7 @@ class BlogsController {
     async createBlog(req: RequestWithBody<blogCreateType>,
                      res: Response<blogViewType | string>) {
         try {
-            const newBlog = await blogsService.createBlog(
+            const newBlog = await this.blogsService.createBlog(
                 req.body.name,
                 req.body.description,
                 req.body.websiteUrl
@@ -98,11 +108,11 @@ class BlogsController {
     async createPostForBlog(req: RequestWithUrlAndBody<{ blogId: string }, postWithBlogIdCreteType>,
                             res: Response<postViewType | string>) {
         try {
-            const getBlog = await blogsQwRepository.findBlog(req.params.blogId);
+            const getBlog = await this.blogsQwRepository.findBlog(req.params.blogId);
             if (!getBlog) {
                 res.sendStatus(404);
             } else {
-                const newPost = await postsService.createPost(
+                const newPost = await this.postsService.createPost(
                     req.body.title,
                     req.body.shortDescription,
                     req.body.content,
@@ -119,11 +129,11 @@ class BlogsController {
     async updateBlog(req: RequestWithUrlAndBody<{ id: string }, blogUpdateType>,
                      res: Response<string>) {
         try {
-            let isBlog = await blogsService.findBlog(req.params.id);
+            let isBlog = await this.blogsService.findBlog(req.params.id);
             if (!isBlog) {
                 res.sendStatus(404);
             } else {
-                await blogsService.updateBlog(
+                await this.blogsService.updateBlog(
                     req.params.id,
                     req.body.name,
                     req.body.description,
@@ -140,14 +150,14 @@ class BlogsController {
     async getPostsByBlogId(req: RequestWithUrlAndQuery<{ blogId: string }, postQueryType>,
                            res: Response<postsViewType | string>) {
         try {
-            const getBlog = await blogsService.findBlog(req.params.blogId);
+            const getBlog = await this.blogsService.findBlog(req.params.blogId);
             if (getBlog) {
                 const {sortBy, pageNumber, pageSize, sortDirection} = req.query;
                 let sortField = sortBy ? sortBy : "createdAt";
                 let pN = pageNumber ? +pageNumber : 1;
                 let pS = pageSize ? +pageSize : 10;
                 let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
-                let postsByBlogId = await blogsQwRepository.findPostsById(
+                let postsByBlogId = await this.blogsQwRepository.findPostsById(
                     req.params.blogId,
                     pN,
                     pS,

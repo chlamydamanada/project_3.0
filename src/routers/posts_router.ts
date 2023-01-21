@@ -1,7 +1,7 @@
 import {Response, Router} from "express";
-import {postsService} from "../domain/posts_service";
-import {postsQwRepository} from "../repositories/posts_qwery_repo";
-import {blogsQwRepository} from "../repositories/blogs_qwery_repo";
+import {PostsService} from "../domain/posts_service";
+import {PostsQwRepositoryClass} from "../repositories/posts_qwery_repo";
+import {BlogsQwRepositoryClass} from "../repositories/blogs_qwery_repo";
 import {baseAuthMiddleware} from "../middlewares/baseAuthorization.middleware";
 import {blogIdValidation} from "../middlewares/blogId.middleware";
 import {titleValidation} from "../middlewares/title.middleware";
@@ -20,16 +20,32 @@ import {postViewType} from "../models/postViewModel";
 import {postCreateType} from "../models/postCreateModel";
 import {postUpdateType} from "../models/postUpdateModel";
 import {bearerAuthMiddleware} from "../middlewares/bearerAuthrization.middleware";
-import {commentsService} from "../domain/comments_service";
 import {contentOfCommentsMiddleware} from "../middlewares/contentOfComments.middleware";
-import {commentsQweryRepository} from "../repositories/comments_qwery_repository";
+import {CommentsQweryRepositoryClass} from "../repositories/comments_qwery_repository";
 import {commentViewType} from "../models/commentViewModel";
 import {postsViewType} from "../models/postsViewModel";
 import {commentsViewType} from "../models/commentsViewModel";
+import {CommentsService} from "../domain/comments_service";
+import {AuthServiceClass} from "../domain/auth_service";
 
 export const postsRouter = Router();
 
 class PostsController {
+    private commentsService: CommentsService;
+    private postsService: PostsService;
+    private postsQwRepository: PostsQwRepositoryClass;
+    private blogsQwRepository: BlogsQwRepositoryClass;
+    private commentsQweryRepository: CommentsQweryRepositoryClass;
+    private authService: AuthServiceClass;
+    constructor() {
+        this.commentsService = new CommentsService()
+        this.postsService = new PostsService()
+        this.postsQwRepository = new PostsQwRepositoryClass()
+        this.blogsQwRepository = new BlogsQwRepositoryClass()
+        this.commentsQweryRepository = new CommentsQweryRepositoryClass()
+        this.authService = new AuthServiceClass()
+    }
+
     async getAllPosts(req: RequestWithQuery<postQueryType>,
                       res: Response<postsViewType | string>) {
         try {
@@ -38,7 +54,7 @@ class PostsController {
             let pN = pageNumber ? +pageNumber : 1;
             let pS = pageSize ? +pageSize : 10;
             let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
-            const posts = await postsQwRepository.findPosts(pN, pS, sortField, sD);
+            const posts = await this.postsQwRepository.findPosts(pN, pS, sortField, sD);
             res.status(200).send(posts);
         } catch (e) {
             res.status(500).send("postsRouter.get/" + e)
@@ -48,7 +64,7 @@ class PostsController {
     async getPostById(req: RequestWithURL<{ id: string }>,
                       res: Response<postViewType | string>) {
         try {
-            let post = await postsQwRepository.findPost(req.params.id);
+            let post = await this.postsQwRepository.findPost(req.params.id);
             if (!post) {
                 res.sendStatus(404);
             } else {
@@ -62,11 +78,11 @@ class PostsController {
     async deletePostById(req: RequestWithURL<{ id: string }>,
                          res: Response<string>) {
         try {
-            let isPost = await postsService.findPost(req.params.id);
+            let isPost = await this.postsService.findPost(req.params.id);
             if (!isPost) {
                 res.sendStatus(404);
             } else {
-                let isDel = await postsService.deletePost(req.params.id);
+                let isDel = await this.postsService.deletePost(req.params.id);
                 res.sendStatus(204);
             }
         } catch (e) {
@@ -77,9 +93,9 @@ class PostsController {
     async createPost(req: RequestWithBody<postCreateType>,
                      res: Response<postViewType | string>) {
         try {
-            const getBlog = await blogsQwRepository.findBlog(req.body.blogId);
+            const getBlog = await this.blogsQwRepository.findBlog(req.body.blogId);
             if (getBlog) {
-                const newPost = await postsService.createPost(
+                const newPost = await this.postsService.createPost(
                     req.body.title,
                     req.body.shortDescription,
                     req.body.content,
@@ -96,11 +112,11 @@ class PostsController {
     async updatePost(req: RequestWithUrlAndBody<{ id: string }, postUpdateType>,
                      res: Response<string>) {
         try {
-            const isPost = await postsService.findPost(req.params.id);
+            const isPost = await this.postsService.findPost(req.params.id);
             if (!isPost) {
                 res.sendStatus(404);
             } else {
-                const isUpD = await postsService.updatePost(
+                const isUpD = await this.postsService.updatePost(
                     req.params.id,
                     req.body.title,
                     req.body.shortDescription,
@@ -117,16 +133,17 @@ class PostsController {
     async createCommentByPostId(req: RequestWithUrlAndBody<{ postId: string }, { content: string }>,
                                 res: Response<commentViewType | string>) {
         try {
-            const isPost = await postsQwRepository.findPost(req.params.postId);
+            const isPost = await this.postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
                 res.sendStatus(404);
                 return;
             } else {
-                const newComment = await commentsService.createComment(
+                const newCommentId = await this.commentsService.createComment(
                     req.body.content,
                     req.user!,
                     req.params.postId
                 );
+                const newComment = await this.commentsQweryRepository.findCommentById(newCommentId)
                 res.status(201).send(newComment);
             }
         } catch (e) {
@@ -137,7 +154,9 @@ class PostsController {
     async getCommentsByPostId(req: RequestWithUrlAndQuery<{ postId: string }, postQueryType>,
                               res: Response<commentsViewType | string>) {
         try {
-            const isPost = await postsQwRepository.findPost(req.params.postId);
+            const userID = req.headers.authorization? await this.authService.getUserIdByAccessToken(
+                req.headers.authorization.split(" ")[1]) : undefined;
+            const isPost = await this.postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
                 res.sendStatus(404);
                 return;
@@ -147,12 +166,13 @@ class PostsController {
                 let pN = pageNumber ? +pageNumber : 1;
                 let pS = pageSize ? +pageSize : 10;
                 let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
-                const comments = await commentsQweryRepository.findComments(
+                const comments = await this.commentsQweryRepository.findComments(
                     req.params.postId,
                     pN,
                     pS,
                     sortField,
-                    sD
+                    sD,
+                    userID
                 );
                 if (!comments) {
                     res.sendStatus(404);

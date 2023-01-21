@@ -4,16 +4,11 @@ import {commentDbType} from "../models/commentDbModel";
 import {commentsModel, likeStatusOfCommentsModel} from "./db";
 import {likeStatusOfCommentDbType} from "../models/likeStatusOfCommentDbModel";
 
-class CommentsRepositoryClass {
-    async createComment(comment: commentDbType): Promise<commentViewType> {
+export class CommentsDbRepositoryClass {
+    async createComment(comment: commentDbType): Promise<string> {
         const result = await commentsModel.create(comment);
-        return {
-            id: result._id.toString(),
-            content: comment.content,
-            userId: comment.userId,
-            userLogin: comment.userLogin,
-            createdAt: comment.createdAt,
-        };
+        return  result._id.toString();
+
     }
 
     async deleteComment(commentId: string): Promise<boolean> {
@@ -49,4 +44,3 @@ class CommentsRepositoryClass {
         await likeStatusOfCommentsModel.updateOne({commentId: commentId, userId: userId},{likeStatus: status})
     }
 };
-export const commentsRepository = new CommentsRepositoryClass();

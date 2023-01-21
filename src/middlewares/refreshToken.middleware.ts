@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { jwtService } from "../application/jwt_service";
-import { authRepository } from "../repositories/auth_repository";
+import {AuthRepositoryClass} from "../repositories/auth_repository";
 import { usersQwRepository } from "../repositories/user_query_repository";
-
+const authRepository = new AuthRepositoryClass();
 export const refreshTokenMiddleware = async (
   req: Request,
   res: Response,

@@ -4,8 +4,8 @@ import {
     RequestWithQuery,
     RequestWithURL,
 } from "../models/request_types";
-import {usersQwRepository} from "../repositories/user_query_repository";
-import {usersService} from "../domain/users_service";
+import {UsersQwRepositoryClass} from "../repositories/user_query_repository";
+import {UserServiceClass} from "../domain/users_service";
 import {userCreateType} from "../models/userCreateModel";
 import {userViewType} from "../models/userViewModel";
 import {baseAuthMiddleware} from "../middlewares/baseAuthorization.middleware";
@@ -20,12 +20,19 @@ import {sortingQueryFields} from "../helpers/sortingFields";
 export const usersRouter = Router();
 
 class UserController {
+    private usersService: UserServiceClass;
+    private usersQwRepository: UsersQwRepositoryClass;
+    constructor() {
+        this.usersService = new UserServiceClass()
+        this.usersQwRepository = new UsersQwRepositoryClass()
+    }
+
     async getAllUsers(req: RequestWithQuery<userQueryType>,
                       res: Response<usersViewType | string>
     ) {
         try {
             const queryFilter = sortingQueryFields.queryFilter(req.query);
-            const allUsers = await usersQwRepository.findAllUsers(
+            const allUsers = await this.usersQwRepository.findAllUsers(
                 queryFilter.pageNumber,
                 queryFilter.pageSize,
                 req.query.searchLoginTerm,
@@ -43,12 +50,12 @@ class UserController {
     async createUser(req: RequestWithBody<userCreateType>,
                      res: Response<userViewType | string>) {
         try {
-            const userId = await usersService.createUser(
+            const userId = await this.usersService.createUser(
                 req.body.login,
                 req.body.password,
                 req.body.email
             );
-            const newUser = await usersQwRepository.findUserById(userId);
+            const newUser = await this.usersQwRepository.findUserById(userId);
             res.status(201).send(newUser);
         } catch (e) {
             res.status(500).send("usersRouter.post/" + e)
@@ -58,9 +65,9 @@ class UserController {
     async deleteUserById(req: RequestWithURL<{ id: string }>,
                          res: Response<string>) {
         try {
-            const isUser = await usersService.findUserById(req.params.id);
+            const isUser = await this.usersService.findUserById(req.params.id);
             if (isUser) {
-                await usersService.deleteUser(req.params.id);
+                await this.usersService.deleteUser(req.params.id);
                 res.sendStatus(204);
             } else {
                 res.sendStatus(404);

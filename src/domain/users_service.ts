@@ -1,10 +1,17 @@
-import {usersDbRepository} from "../repositories/users_db_repository";
+import {UsersDbRepositoryClass} from "../repositories/users_db_repository";
 import {userDbType} from "../models/userDBModel";
 import {generateHash, generateSalt} from "../helpers/generator_Hash";
 import {UserDbClass} from "../classes/UserDbClass";
-import {authService} from "./auth_service";
+import {AuthServiceClass} from "./auth_service";
 
-class UserServiceClass {
+export class UserServiceClass {
+    private usersDbRepository : UsersDbRepositoryClass
+    private authService: AuthServiceClass;
+    constructor() {
+        this.usersDbRepository = new UsersDbRepositoryClass()
+        this.authService = new AuthServiceClass()
+    }
+
     async createUser(
         login: string,
         password: string,
@@ -15,16 +22,15 @@ class UserServiceClass {
 
         const newUserDto: userDbType = new UserDbClass(login, email, passwordHash);
 
-        const newUserId = await usersDbRepository.createUser(newUserDto);
-        await authService.confirmEmail(newUserDto.emailConfirmation.confirmationCode)
+        const newUserId = await this.usersDbRepository.createUser(newUserDto);
+        await this.authService.confirmEmail(newUserDto.emailConfirmation.confirmationCode)
         return newUserId;
     }
     async findUserById(id: string): Promise<boolean> {
-        return await usersDbRepository.findUserById(id);
+        return await this.usersDbRepository.findUserById(id);
     }
     async deleteUser(id: string): Promise<boolean> {
-        return await usersDbRepository.deleteUser(id);
+        return await this.usersDbRepository.deleteUser(id);
     }
 }
 
-export const usersService = new UserServiceClass();

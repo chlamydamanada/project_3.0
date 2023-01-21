@@ -1,7 +1,7 @@
 import {refreshTokenMetaModel} from "./db";
 import {deviceViewType} from "../models/deviceViewModel";
 
-class AuthRepositoryClass  {
+export class AuthRepositoryClass  {
   async createRefreshTokenMeta(device: any): Promise<void> {
     await refreshTokenMetaModel.create(device);
   }
@@ -71,4 +71,4 @@ class AuthRepositoryClass  {
     return device;
   }
 };
-export const authRepository = new AuthRepositoryClass();
+

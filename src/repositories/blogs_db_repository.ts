@@ -3,7 +3,7 @@ import {blogViewType} from "../models/blogViewModel";
 import {blogCreateServiceType} from "../models/blogCreateModel";
 import {BlogsModel} from "./db";
 
-class BlogsRepositoryClass  {
+export class BlogsRepositoryClass  {
     async findBlog(id: string): Promise<boolean> {
         let blog = await BlogsModel.findOne({_id: new ObjectId(id)});
         if (!blog) {
@@ -46,4 +46,4 @@ class BlogsRepositoryClass  {
         return newBlog.matchedCount === 1;
     }
 };
-export const blogsRepository = new BlogsRepositoryClass();
+

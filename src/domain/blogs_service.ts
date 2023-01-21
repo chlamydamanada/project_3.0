@@ -1,14 +1,19 @@
-import {blogsRepository} from "../repositories/blogs_db_repository";
+import {BlogsRepositoryClass} from "../repositories/blogs_db_repository";
 import {blogCreateServiceType} from "../models/blogCreateModel";
 import {blogViewType} from "../models/blogViewModel";
 import {BlogDbClass} from "../classes/BlogDbClass";
 
-class BlogsService {
+export class BlogsService {
+  blogsRepository : BlogsRepositoryClass
+  constructor() {
+    this.blogsRepository = new BlogsRepositoryClass()
+  }
+
   async findBlog(id: string): Promise<boolean> {
-    return await blogsRepository.findBlog(id);
+    return await this.blogsRepository.findBlog(id);
   }
   async deleteBlog(id: string) {
-    return await blogsRepository.deleteBlog(id);
+    return await this.blogsRepository.deleteBlog(id);
   }
   async createBlog(
       name: string,
@@ -16,7 +21,7 @@ class BlogsService {
       websiteUrl: string
   ): Promise<blogViewType> {
     const newBlog: blogCreateServiceType = new BlogDbClass(name, description, websiteUrl);
-    return await blogsRepository.createBlog(newBlog);
+    return await this.blogsRepository.createBlog(newBlog);
   }
   async updateBlog(
       id: string,
@@ -24,7 +29,7 @@ class BlogsService {
       description: string,
       websiteUrl: string
   ) {
-    return await blogsRepository.updateBlog(id, name, description, websiteUrl);
+    return await this.blogsRepository.updateBlog(id, name, description, websiteUrl);
   }
 }
-export const blogsService = new BlogsService();
+

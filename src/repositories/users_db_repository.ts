@@ -4,7 +4,7 @@ import {userDbType} from "../models/userDBModel";
 import {emailConfirmationType} from "../models/emailConfirmationServiceModel";
 import {usersModel} from "./db";
 
- class UsersDbRepositoryClass  {
+export class UsersDbRepositoryClass  {
     async createUser(user: userDbType): Promise<string> {
         const newUser = await usersModel.create(user);
         return newUser._id.toString();
@@ -80,4 +80,3 @@ import {usersModel} from "./db";
         );
     }
 };
-export const usersDbRepository = new UsersDbRepositoryClass();

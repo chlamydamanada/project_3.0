@@ -1,6 +1,6 @@
 import {Response, Router} from "express";
-import {commentsQweryRepository} from "../repositories/comments_qwery_repository";
-import {commentsService} from "../domain/comments_service";
+import {CommentsQweryRepositoryClass} from "../repositories/comments_qwery_repository";
+import {CommentsService} from "../domain/comments_service";
 import {bearerAuthMiddleware} from "../middlewares/bearerAuthrization.middleware";
 import {userIsOwnerOfCommentMiddleware} from "../middlewares/userIsOwnerOfComment.middleware";
 import {contentOfCommentsMiddleware} from "../middlewares/contentOfComments.middleware";
@@ -8,15 +8,28 @@ import {inputValMiddleware} from "../middlewares/inputValue.middleware";
 import {commentViewType} from "../models/commentViewModel";
 import {RequestWithURL, RequestWithUrlAndBody} from "../models/request_types";
 import {commentStatusValidation} from "../middlewares/commentStatus.middleware";
+import {AuthServiceClass} from "../domain/auth_service";
 
 export const commentsRouter = Router();
 
 class CommentsController {
+    private commentsService: CommentsService;
+    private commentsQweryRepository: CommentsQweryRepositoryClass;
+    private authService: AuthServiceClass;
+    constructor() {
+        this.commentsService = new CommentsService()
+        this.commentsQweryRepository = new CommentsQweryRepositoryClass()
+        this.authService = new AuthServiceClass()
+    }
+
     async getCommentById(req: RequestWithURL<{ commentId: string }>,
                          res: Response<commentViewType | string>) {
         try {
-            const comment = await commentsQweryRepository.findCommentById(
-                req.params.commentId
+            const userID = req.headers.authorization? await this.authService.getUserIdByAccessToken(
+                req.headers.authorization.split(" ")[1]) : undefined;
+            const comment = await this.commentsQweryRepository.findCommentById(
+                req.params.commentId,
+                userID
             );
             if (!comment) {
                 res.sendStatus(404);
@@ -31,7 +44,7 @@ class CommentsController {
     async deleteCommentById(req: RequestWithURL<{ commentId: string }>,
                             res: Response<string>) {
         try {
-            await commentsService.deleteComment(req.params.commentId);
+            await this.commentsService.deleteComment(req.params.commentId);
             res.sendStatus(204);
         } catch (e) {
             res.status(500).send("commentsRouter.delete/:commentId" + e)
@@ -41,7 +54,7 @@ class CommentsController {
     async updateCommentById(req: RequestWithURL<{ commentId: string }>,
                             res: Response<string>) {
         try {
-            const newComment = await commentsService.updateComment(
+            const newComment = await this.commentsService.updateComment(
                 req.params.commentId,
                 req.body.content
             );
@@ -56,11 +69,11 @@ class CommentsController {
     async updateLikeStatusByCommentId(req: RequestWithUrlAndBody<{ commentId: string }, { likeStatus: string }>,
                                       res: Response<string>) {
         try {
-            const comment = await commentsQweryRepository.findCommentById(req.params.commentId);
+            const comment = await this.commentsQweryRepository.findCommentById(req.params.commentId);
             if (!comment) {
                 res.sendStatus(404);
             }
-            await commentsService.generateStatusOfComment(
+            await this.commentsService.generateStatusOfComment(
                 req.params.commentId,
                 req.user!.id,
                 req.body.likeStatus)

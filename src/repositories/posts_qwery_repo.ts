@@ -3,7 +3,7 @@ import {postsModel} from "./db";
 import {postsViewType} from "../models/postsViewModel";
 import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 
-class PostsQwRepositoryClass  {
+export class PostsQwRepositoryClass  {
   async findPosts(pN: number, pS: number, sortField: string, sD: 1 | -1): Promise<postsViewType> {
     let totalCount = await postsModel.count({});
     const posts = await postsModel
@@ -42,4 +42,3 @@ class PostsQwRepositoryClass  {
     };
   }
 };
-export const postsQwRepository = new PostsQwRepositoryClass();

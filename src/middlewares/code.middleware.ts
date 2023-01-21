@@ -1,7 +1,7 @@
-import { body } from "express-validator";
+import {body} from "express-validator";
+import {UsersDbRepositoryClass} from "../repositories/users_db_repository";
 
-import { usersDbRepository } from "../repositories/users_db_repository";
-
+const usersDbRepository = new UsersDbRepositoryClass();
 export const codeValidation = body("code")
   .isString()
   .custom(async (code: string) => {

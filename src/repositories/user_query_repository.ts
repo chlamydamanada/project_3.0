@@ -4,7 +4,7 @@ import {usersViewType} from "../models/usersViewModel";
 import {sortingQueryFields} from "../helpers/sortingFields";
 import {usersModel} from "./db";
 
-class UsersQwRepositoryClass {
+export class UsersQwRepositoryClass {
   async findAllUsers(
     pageNumber: number,
     pageSize: number,

@@ -1,6 +1,7 @@
-import { body } from "express-validator";
-import { usersDbRepository } from "../repositories/users_db_repository";
+import {body} from "express-validator";
+import {UsersDbRepositoryClass} from "../repositories/users_db_repository";
 
+const usersDbRepository = new UsersDbRepositoryClass()
 export const emailExistValidation = body("email").custom(
   async (email: string) => {
     const user = await usersDbRepository.findUserByLoginOrEmail(email);

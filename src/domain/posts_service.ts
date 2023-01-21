@@ -1,10 +1,15 @@
-import { postsRepository } from "../repositories/posts_db_repository";
+import {PostsRepositoryClass} from "../repositories/posts_db_repository";
 import { postCreateServiceType } from "../models/postCreateModel";
 import {PostDbClass} from "../classes/PostDbClass";
 
-class PostsService{
+export class PostsService{
+  postsRepository : PostsRepositoryClass
+  constructor() {
+    this.postsRepository = new PostsRepositoryClass()
+  }
+
   async deletePost(id: string) {
-    return await postsRepository.deletePost(id);
+    return await this.postsRepository.deletePost(id);
   }
   async createPost(
       title: string,
@@ -19,7 +24,7 @@ class PostsService{
         content,
         blogId,
         blogName);
-    return await postsRepository.createPost(newPost);
+    return await this.postsRepository.createPost(newPost);
   }
   async updatePost(
       id: string,
@@ -28,7 +33,7 @@ class PostsService{
       content: string,
       blogId: string
   ) {
-    return await postsRepository.updatePost(
+    return await this.postsRepository.updatePost(
         id,
         title,
         shortDescription,
@@ -37,9 +42,9 @@ class PostsService{
     );
   }
   async findPost(id: string): Promise<boolean> {
-    return await postsRepository.findPost(id);
+    return await this.postsRepository.findPost(id);
   }
 }
 
 
-export const postsService = new PostsService();
+

@@ -8,7 +8,7 @@ import {postsViewType} from "../models/postsViewModel";
 import {postViewType} from "../models/postViewModel";
 import {mappers} from "../helpers/mappers";
 
-class BlogsQwRepositoryClass  {
+export class BlogsQwRepositoryClass  {
     async findBlogs(
         searchNameTerm: string | undefined,
         pN: number,
@@ -60,4 +60,4 @@ class BlogsQwRepositoryClass  {
             items)
     }
 };
-export const blogsQwRepository = new BlogsQwRepositoryClass();
+

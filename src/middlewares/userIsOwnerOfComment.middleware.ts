@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { commentsQweryRepository } from "../repositories/comments_qwery_repository";
+import {CommentsQweryRepositoryClass} from "../repositories/comments_qwery_repository";
 import { RequestWithURL } from "../models/request_types";
-
+const commentsQweryRepository = new CommentsQweryRepositoryClass();
 export const userIsOwnerOfCommentMiddleware = async (
   req: RequestWithURL<{ commentId: string }>,
   res: Response,

@@ -1,7 +1,8 @@
-import { body } from "express-validator";
+import {body} from "express-validator";
 
-import { blogsService } from "../domain/blogs_service";
+import {BlogsService} from "../domain/blogs_service";
 
+const blogsService = new BlogsService()
 export const blogIdValidation = body("blogId")
   .isString()
   .custom(async (blogId: string) => {

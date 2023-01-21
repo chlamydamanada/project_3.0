@@ -3,7 +3,7 @@ import {postViewType} from "../models/postViewModel";
 import {postCreateServiceType} from "../models/postCreateModel";
 import {postsModel} from "./db";
 
-class PostsRepositoryClass {
+export class PostsRepositoryClass {
   async deletePost(id: string): Promise<boolean> {
     let isDel = await postsModel.deleteOne({ _id: new ObjectId(id) });
     return isDel.deletedCount === 1;
@@ -49,4 +49,3 @@ class PostsRepositoryClass {
     }
   }
 };
-export const postsRepository = new PostsRepositoryClass();
