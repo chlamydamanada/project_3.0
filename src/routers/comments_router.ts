@@ -25,8 +25,8 @@ class CommentsController {
     async getCommentById(req: RequestWithURL<{ commentId: string }>,
                          res: Response<commentViewType | string>) {
         try {
-            const userID : string | null = await this.authService.getUserIdByAccessToken(
-                req.headers.authorization!.split(" ")[1]) ;
+            const userID = req.headers.authorization? await this.authService.decodeToken(
+                req.headers.authorization.split(" ")[1]) : undefined;
 
             console.log('******', req.headers.authorization)
             console.log('+++++', userID)

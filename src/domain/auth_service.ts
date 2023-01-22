@@ -84,6 +84,15 @@ export class AuthServiceClass  {
             return null;
         }
     }
+    async decodeToken(token: string): Promise<any> {
+        try {
+            const result: any = jwt.decode(token);
+            return result.userId;
+        } catch (e) {
+            console.log("Can't decode token", e);
+            return null;
+        }
+    }
     async deleteRefreshTokenMetaByToken(deviceId: string): Promise<boolean> {
         const isDelRT = await this.authRepository.deleteRefreshTokenMeta(deviceId);
         return isDelRT;
