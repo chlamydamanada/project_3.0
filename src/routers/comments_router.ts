@@ -9,7 +9,6 @@ import {commentViewType} from "../models/commentViewModel";
 import {RequestWithURL, RequestWithUrlAndBody} from "../models/request_types";
 import {commentStatusValidation} from "../middlewares/commentStatus.middleware";
 import {AuthServiceClass} from "../domain/auth_service";
-import {jwtService} from "../application/jwt_service";
 
 export const commentsRouter = Router();
 
@@ -26,11 +25,17 @@ class CommentsController {
     async getCommentById(req: RequestWithURL<{ commentId: string }>,
                          res: Response<commentViewType | string>) {
         try {
-            const tokenInfo = req.headers.authorization? await jwtService.decodeRefreshToken(
-                req.headers.authorization.split(" ")[1]) : undefined;
+            const userID : string | null = await this.authService.getUserIdByAccessToken(
+                req.headers.authorization!.split(" ")[1]) ;
+
+            console.log('******', req.headers.authorization)
+            console.log('+++++', userID)
+
+
+
             const comment = await this.commentsQweryRepository.findCommentById(
                 req.params.commentId,
-                tokenInfo.userId
+                userID
             );
             if (!comment) {
                 res.sendStatus(404);
