@@ -94,6 +94,7 @@ class PostsController {
                      res: Response<postViewType | string>) {
         try {
             const getBlog = await this.blogsQwRepository.findBlog(req.body.blogId);
+            console.log('getBlog:', getBlog )
             if (getBlog) {
                 const newPost = await this.postsService.createPost(
                     req.body.title,
