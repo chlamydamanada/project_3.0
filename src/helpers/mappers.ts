@@ -68,32 +68,3 @@ export const mappers = {
         return result
     },
 }
-
-
-/*}
-    let userStatus:string | undefined;
-    if(userId){
-        const userLikeStatus = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
-        userStatus =  userLikeStatus?.likeStatus
-
-        {id: comment._id.toString(),
-            content: comment.content,
-            userId: comment.userId,
-            userLogin: comment.userLogin,
-            createdAt: comment.createdAt,
-            likesInfo: {
-                likesCount: await likeStatusOfCommentsModel
-                    .count({commentId: comment._id, likeStatus: "Like" }),
-                dislikesCount: await likeStatusOfCommentsModel
-                    .count({commentId: comment._id, likeStatus: "Dislike" }),
-                myStatus: userStatus? userStatus :"None"}
-
-
-
-}}))
-    return result;
-
-
-},
-
-}*/
