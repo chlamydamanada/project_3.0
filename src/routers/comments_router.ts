@@ -25,13 +25,14 @@ class CommentsController {
     async getCommentById(req: RequestWithURL<{ commentId: string }>,
                          res: Response<commentViewType | string>) {
         try {
-            const userID = req.headers.authorization? await this.authService.decodeToken(
-                req.headers.authorization.split(" ")[1]) : undefined;
+            let userID: null | string = null ;
+            if(req.headers.authorization){
+                let token = req.headers.authorization.split(" ")[1];
+                userID = await this.authService.decodeToken(token);
+            }
 
             console.log('******', req.headers.authorization)
             console.log('+++++', userID)
-
-
 
             const comment = await this.commentsQweryRepository.findCommentById(
                 req.params.commentId,
