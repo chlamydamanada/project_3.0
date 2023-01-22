@@ -40,10 +40,13 @@ export const mappers = {
     },
     async commentMapper(comment: any, userId?: string | undefined | null) {
         try{
-            let userStatus: string | undefined | null;
+            let userStatus = "None";
             if (userId) {
                 const userLikeStatus = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
-                userStatus = userLikeStatus!.likeStatus
+                if(userLikeStatus){
+                    userStatus = userLikeStatus.likeStatus;
+                }
+
             }
             const newComment = {
                 id: comment._id.toString(),
@@ -56,7 +59,7 @@ export const mappers = {
                         .count({commentId: comment._id, likeStatus: "Like"}),
                     dislikesCount: await likeStatusOfCommentsModel
                         .count({commentId: comment._id, likeStatus: "Dislike"}),
-                    myStatus: userStatus ? userStatus : "None"
+                    myStatus: userStatus
                 }
             }
             return newComment;
