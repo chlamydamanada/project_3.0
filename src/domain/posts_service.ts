@@ -1,6 +1,7 @@
 import {PostsRepositoryClass} from "../repositories/posts_db_repository";
 import { postCreateServiceType } from "../models/postCreateModel";
 import {PostDbClass} from "../classes/PostDbClass";
+import {postViewType} from "../models/postViewModel";
 
 export class PostsService{
   postsRepository : PostsRepositoryClass
@@ -17,7 +18,7 @@ export class PostsService{
       content: string,
       blogId: string,
       blogName: string
-  ) {
+  ): Promise<postViewType> {
     const newPost: postCreateServiceType = new PostDbClass(
         title,
         shortDescription,

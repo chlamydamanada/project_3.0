@@ -102,6 +102,7 @@ class PostsController {
                     req.body.blogId,
                     getBlog.name
                 );
+                console.log(newPost)
                 res.status(201).send(newPost);
             }
         } catch (e) {
