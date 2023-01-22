@@ -154,8 +154,14 @@ class PostsController {
     async getCommentsByPostId(req: RequestWithUrlAndQuery<{ postId: string }, postQueryType>,
                               res: Response<commentsViewType | string>) {
         try {
-            const userID = req.headers.authorization? await this.authService.getUserIdByAccessToken(
-                req.headers.authorization.split(" ")[1]) : undefined;
+            let userID: null | string = null ;
+            if(req.headers.authorization){
+                let token = req.headers.authorization.split(" ")[1];
+                userID = await this.authService.decodeToken(token);
+            }
+            console.log('///////', req.headers.authorization)
+            console.log('--------', userID)
+
             const isPost = await this.postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
                 res.sendStatus(404);
