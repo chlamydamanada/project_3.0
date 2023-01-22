@@ -21,19 +21,22 @@ export class CommentsQweryRepositoryClass {
             .skip((pN - 1) * pS)
             .limit(pS)
             .lean();
-        const items = await mappers.commentsMapper(comments, userId);
-        console.log("all comments by postID:", items)
-        return getArrayWithPagination(totalCount,
+        const items = await Promise.all(comments.map(async comment => {
+            const item = await mappers.commentMapper(comment, userId)
+            return item
+        }))
+        const result = getArrayWithPagination(totalCount,
             pS,
             pN,
             items);
+        return result;
     }
 
     async findCommentById(id: string, userId?: string | undefined | null): Promise<commentViewType | undefined> {
         let comment = await commentsModel.findOne({_id: new ObjectId(id)});
         if (comment) {
-
-            return mappers.commentMapper(comment)
+            const result = await mappers.commentMapper(comment, userId);
+            return result;
         } else {
             return undefined;
         }

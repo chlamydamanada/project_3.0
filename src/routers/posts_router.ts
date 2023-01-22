@@ -96,15 +96,18 @@ class PostsController {
             const getBlog = await this.blogsQwRepository.findBlog(req.body.blogId);
             console.log('*****////getBlog//////*****:', getBlog )
             if (getBlog) {
-                const newPost = await this.postsService.createPost(
+                const newPostId = await this.postsService.createPost(
                     req.body.title,
                     req.body.shortDescription,
                     req.body.content,
                     req.body.blogId,
                     getBlog.name
                 );
+                console.log('*****////newPostId//////*****:', newPostId )
+                const newPost = await this.postsQwRepository.findPost(newPostId)
+                if(newPost) res.status(201).send(newPost);
                 console.log('*****////newPost//////*****:', newPost )
-                res.status(201).send(newPost);
+
             } else {
                 res.status(300).send("otsosi y traktorista")
             }

@@ -8,17 +8,9 @@ export class PostsRepositoryClass {
     let isDel = await postsModel.deleteOne({ _id: new ObjectId(id) });
     return isDel.deletedCount === 1;
   }
-  async createPost(post: postCreateServiceType): Promise<postViewType> {
+  async createPost(post: postCreateServiceType): Promise<string> {
     const result = await postsModel.create(post);
-    return {
-      id: result._id.toString(),
-      title: post.title,
-      shortDescription: post.shortDescription,
-      content: post.content,
-      blogId: post.blogId,
-      blogName: post.blogName,
-      createdAt: post.createdAt,
-    };
+    return result._id.toString();
   }
   async updatePost(
     id: string,

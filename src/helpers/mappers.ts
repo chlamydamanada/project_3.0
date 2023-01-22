@@ -39,7 +39,7 @@ export const mappers = {
     usersMapper() {
     },
     async commentMapper(comment: any, userId?: string | undefined | null) {
-        const newComment = {
+        let newComment = {
             id: comment._id.toString(),
             content: comment.content,
             userId: comment.userId,
@@ -54,7 +54,7 @@ export const mappers = {
             }
         }
         if (!userId) return newComment;
-        const userReaction = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
+        let userReaction = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
         if (userReaction) {
             newComment.likesInfo.myStatus = userReaction.likeStatus;
         }

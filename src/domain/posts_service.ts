@@ -19,7 +19,7 @@ export class PostsService{
       content: string,
       blogId: string,
       blogName: string
-  ): Promise<postViewType> {
+  ): Promise<string> {
     const newPost: postCreateServiceType = new PostDbClass(
         title,
         shortDescription,
