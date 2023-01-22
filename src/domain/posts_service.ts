@@ -10,7 +10,8 @@ export class PostsService{
   }
 
   async deletePost(id: string) {
-    return await this.postsRepository.deletePost(id);
+    const result = await this.postsRepository.deletePost(id);
+    return result;
   }
   async createPost(
       title: string,
@@ -25,7 +26,8 @@ export class PostsService{
         content,
         blogId,
         blogName);
-    return await this.postsRepository.createPost(newPost);
+    const result = await this.postsRepository.createPost(newPost);
+    return result;
   }
   async updatePost(
       id: string,
@@ -34,16 +36,18 @@ export class PostsService{
       content: string,
       blogId: string
   ) {
-    return await this.postsRepository.updatePost(
+    const result = await this.postsRepository.updatePost(
         id,
         title,
         shortDescription,
         content,
         blogId
     );
+    return result;
   }
   async findPost(id: string): Promise<boolean> {
-    return await this.postsRepository.findPost(id);
+    const result = await this.postsRepository.findPost(id);
+    return result;
   }
 }
 

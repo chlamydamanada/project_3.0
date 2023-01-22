@@ -8,7 +8,7 @@ import {postsViewType} from "../models/postsViewModel";
 import {postViewType} from "../models/postViewModel";
 import {mappers} from "../helpers/mappers";
 
-export class BlogsQwRepositoryClass  {
+export class BlogsQwRepositoryClass {
     async findBlogs(
         searchNameTerm: string | undefined,
         pN: number,
@@ -25,19 +25,20 @@ export class BlogsQwRepositoryClass  {
             .limit(pS)
             .lean();
         const items: blogViewType[] = mappers.blogsMapper(blogs);
-        return getArrayWithPagination(totalCount,
+        const result = getArrayWithPagination(totalCount,
             pS,
             pN,
             items);
+        return result;
     }
+
     async findBlog(id: string): Promise<blogViewType | undefined> {
-        let blog = await BlogsModel.findOne({_id: new ObjectId(id)});
-        if (!blog) {
-            return undefined;
-        } else {
-            return mappers.blogMapper(blog);
-        }
+        const blog = await BlogsModel.findOne({_id: new ObjectId(id)});
+        if (!blog) return undefined;
+        const result = mappers.blogMapper(blog);
+        return result;
     }
+
     async findPostsById(
         blogId: string,
         pN: number,
@@ -53,11 +54,12 @@ export class BlogsQwRepositoryClass  {
             .limit(pS)
             .lean();
         const items: postViewType[] = mappers.postsMapper(posts);
-        return getArrayWithPagination(
+        const result =  getArrayWithPagination(
             totalCount,
             pS,
             pN,
             items)
+        return result;
     }
 };
 
