@@ -94,7 +94,7 @@ class PostsController {
                      res: Response<postViewType | string>) {
         try {
             const getBlog = await this.blogsQwRepository.findBlog(req.body.blogId);
-            console.log('getBlog:', getBlog )
+            console.log('*****////getBlog//////*****:', getBlog )
             if (getBlog) {
                 const newPost = await this.postsService.createPost(
                     req.body.title,
@@ -103,9 +103,12 @@ class PostsController {
                     req.body.blogId,
                     getBlog.name
                 );
-                console.log('newPost:', newPost )
+                console.log('*****////newPost//////*****:', newPost )
                 res.status(201).send(newPost);
+            } else {
+                res.status(300).send("otsosi y traktorista")
             }
+
         } catch (e) {
             res.status(500).send("postsRouter.post/" + e)
         }

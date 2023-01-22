@@ -53,9 +53,8 @@ export const mappers = {
                 myStatus: "None"
             }
         }
-        console.log("newComment in mapper:", newComment);
         if (!userId) return newComment;
-        const userReaction = await likeStatusOfCommentsModel.findOne({commentId: comment.id, userId: userId})
+        const userReaction = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
         if (userReaction) {
             newComment.likesInfo.myStatus = userReaction.likeStatus;
         }
