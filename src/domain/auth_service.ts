@@ -11,12 +11,10 @@ import {generateHash, generateSalt} from "../helpers/generator_Hash";
 import {UserDbClass} from "../classes/UserDbClass";
 import {userAuthServiceType} from "../models/userAuthServiceModel";
 
-export class AuthServiceClass  {
-    authRepository : AuthRepositoryClass
-    usersDbRepository : UsersDbRepositoryClass
-    constructor() {
-        this.authRepository = new AuthRepositoryClass()
-        this.usersDbRepository = new UsersDbRepositoryClass()
+export class AuthServiceClass {
+    constructor(
+        protected usersDbRepository: UsersDbRepositoryClass,
+        protected authRepository: AuthRepositoryClass) {
     }
 
     async checkCredentials(loginOrEmail: string, password: string) {
@@ -30,14 +28,17 @@ export class AuthServiceClass  {
             return false;
         }
     }
+
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<userAuthServiceType | undefined> {
         const user = await this.usersDbRepository.findUserByLoginOrEmail(loginOrEmail);
         return user;
     }
-    async findAllDevices(userId: string){
+
+    async findAllDevices(userId: string) {
         const allDevices = await this.authRepository.findAllDevices(userId);
         return allDevices;
     }
+
     async createAccessToken(userID: string) {
         const token = jwt.sign({userId: userID}, settings.jwt_secretAT, {
             expiresIn: "1000 seconds",
@@ -46,6 +47,7 @@ export class AuthServiceClass  {
             accessToken: token,
         };
     }
+
     async createRefreshToken(
         userId: string,
         ip: string,
@@ -64,6 +66,7 @@ export class AuthServiceClass  {
         });
         return token;
     }
+
     async updateRefreshToken(userId: string, ip: string, deviceId: string) {
         const token = await jwtService.createRefreshToken(userId, deviceId);
         const tokenInfo = await jwtService.decodeRefreshToken(token);
@@ -75,6 +78,7 @@ export class AuthServiceClass  {
         });
         return token;
     }
+
     async getUserIdByAccessToken(token: string): Promise<string | null> {
         try {
             const result: any = jwt.verify(token, settings.jwt_secretAT);
@@ -84,6 +88,7 @@ export class AuthServiceClass  {
             return null;
         }
     }
+
     async decodeToken(token: string): Promise<any> {
         try {
             const result: any = jwt.decode(token);
@@ -93,10 +98,12 @@ export class AuthServiceClass  {
             return null;
         }
     }
+
     async deleteRefreshTokenMetaByToken(deviceId: string): Promise<boolean> {
         const isDelRT = await this.authRepository.deleteRefreshTokenMeta(deviceId);
         return isDelRT;
     }
+
     async deleteAllRefreshTokenMetaByIdExceptMy(
         userId: string,
         deviceId: string
@@ -107,6 +114,7 @@ export class AuthServiceClass  {
         );
         return isDelRT;
     }
+
     async createUser(
         login: string,
         password: string,
@@ -128,10 +136,12 @@ export class AuthServiceClass  {
         }
         return userId;
     }
+
     async confirmEmail(code: string): Promise<boolean> {
         const user = await this.usersDbRepository.findUserByCode(code);
         return await this.usersDbRepository.updateConfirmation(user._id);
     }
+
     async checkEmailIsConfirmed(email: string) {
         const newEmailConfirmation = createNewConfirmationCode();
         const newUser =
@@ -146,6 +156,7 @@ export class AuthServiceClass  {
         }
         return true;
     }
+
     async makeRecoveryCode(email: string) {
         const newEmailConfirmation = createNewConfirmationCode();
         const newUser =
@@ -160,6 +171,7 @@ export class AuthServiceClass  {
         }
         return true;
     }
+
     async updatePasswordByRecoveryCode(code: string, password: string) {
         const passwordSalt = await generateSalt();
         const passwordHash = await generateHash(

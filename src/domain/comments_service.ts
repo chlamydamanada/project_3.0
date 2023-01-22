@@ -1,15 +1,12 @@
 import {CommentsDbRepositoryClass} from "../repositories/comments_db_repository";
 import {userViewType} from "../models/userViewModel";
 import {commentDbType} from "../models/commentDbModel";
-import {commentViewType} from "../models/commentViewModel";
 import {CommentsDbClass} from "../classes/CommentsDbClass";
 import {LikeStatusOfCommentClass} from "../classes/LikeOfCommentsClass";
 
 export class CommentsService {
-    commentsDbRepository: CommentsDbRepositoryClass
 
-    constructor() {
-        this.commentsDbRepository = new CommentsDbRepositoryClass()
+    constructor(protected commentsDbRepository: CommentsDbRepositoryClass) {
     }
 
     async createComment(

@@ -5,11 +5,8 @@ import {UserDbClass} from "../classes/UserDbClass";
 import {AuthServiceClass} from "./auth_service";
 
 export class UserServiceClass {
-    private usersDbRepository : UsersDbRepositoryClass
-    private authService: AuthServiceClass;
-    constructor() {
-        this.usersDbRepository = new UsersDbRepositoryClass()
-        this.authService = new AuthServiceClass()
+    constructor(protected authService: AuthServiceClass,
+                protected usersDbRepository: UsersDbRepositoryClass) {
     }
 
     async createUser(
@@ -26,9 +23,11 @@ export class UserServiceClass {
         await this.authService.confirmEmail(newUserDto.emailConfirmation.confirmationCode)
         return newUserId;
     }
+
     async findUserById(id: string): Promise<boolean> {
         return await this.usersDbRepository.findUserById(id);
     }
+
     async deleteUser(id: string): Promise<boolean> {
         return await this.usersDbRepository.deleteUser(id);
     }

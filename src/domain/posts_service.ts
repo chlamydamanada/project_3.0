@@ -4,10 +4,8 @@ import {PostDbClass} from "../classes/PostDbClass";
 import {postViewType} from "../models/postViewModel";
 
 export class PostsService{
-  postsRepository : PostsRepositoryClass
-  constructor() {
-    this.postsRepository = new PostsRepositoryClass()
-  }
+
+  constructor(protected postsRepository : PostsRepositoryClass) { }
 
   async deletePost(id: string) {
     const result = await this.postsRepository.deletePost(id);

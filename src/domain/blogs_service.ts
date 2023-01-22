@@ -4,9 +4,8 @@ import {blogViewType} from "../models/blogViewModel";
 import {BlogDbClass} from "../classes/BlogDbClass";
 
 export class BlogsService {
-  blogsRepository : BlogsRepositoryClass
-  constructor() {
-    this.blogsRepository = new BlogsRepositoryClass()
+
+  constructor(protected blogsRepository : BlogsRepositoryClass) {
   }
 
   async findBlog(id: string): Promise<boolean> {
