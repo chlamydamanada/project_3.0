@@ -39,39 +39,34 @@ export const mappers = {
     usersMapper() {
     },
     async commentMapper(comment: any, userId?: string | undefined | null) {
-        try{
-            let userStatus = "None";
-            if (userId) {
-                const userLikeStatus = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
-                if(userLikeStatus){
-                    userStatus = userLikeStatus.likeStatus;
-                }
-
+        const newComment = {
+            id: comment._id.toString(),
+            content: comment.content,
+            userId: comment.userId,
+            userLogin: comment.userLogin,
+            createdAt: comment.createdAt,
+            likesInfo: {
+                likesCount: await likeStatusOfCommentsModel
+                    .count({commentId: comment._id, likeStatus: "Like"}),
+                dislikesCount: await likeStatusOfCommentsModel
+                    .count({commentId: comment._id, likeStatus: "Dislike"}),
+                myStatus: "None"
             }
-            const newComment = {
-                id: comment._id.toString(),
-                content: comment.content,
-                userId: comment.userId,
-                userLogin: comment.userLogin,
-                createdAt: comment.createdAt,
-                likesInfo: {
-                    likesCount: await likeStatusOfCommentsModel
-                        .count({commentId: comment._id, likeStatus: "Like"}),
-                    dislikesCount: await likeStatusOfCommentsModel
-                        .count({commentId: comment._id, likeStatus: "Dislike"}),
-                    myStatus: userStatus
-                }
-            }
-            return newComment;
-        } catch (e) {
-            console.log("commentMapper error:", e)
         }
-
+        console.log("newComment in mapper:", newComment);
+        if (!userId) return newComment;
+        const userReaction = await likeStatusOfCommentsModel.findOne({commentId: comment.id, userId: userId})
+        if (userReaction) {
+            newComment.likesInfo.myStatus = userReaction.likeStatus;
+        }
+        return newComment;
     },
     async commentsMapper(comments: any[], userId?: string | undefined | null) {
-        try{
+        try {
+
             const result = await Promise.all(comments.map(async comment => {
                 const item = await this.commentMapper(comment, userId)
+
                 return item
             }))
             return result
@@ -79,7 +74,6 @@ export const mappers = {
         } catch (e) {
             console.log("commentsMapper error:", e)
         }
-
 
 
     },

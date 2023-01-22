@@ -161,8 +161,6 @@ class PostsController {
                 let token = req.headers.authorization.split(" ")[1];
                 userID = await this.authService.decodeToken(token);
             }
-            console.log('///////', req.headers.authorization)
-            console.log('--------', userID)
 
             const isPost = await this.postsQwRepository.findPost(req.params.postId);
             if (!isPost) {

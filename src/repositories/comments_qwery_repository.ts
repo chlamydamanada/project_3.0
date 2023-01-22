@@ -22,6 +22,7 @@ export class CommentsQweryRepositoryClass {
             .limit(pS)
             .lean();
         const items = await mappers.commentsMapper(comments, userId);
+        console.log("all comments by postID:", items)
         return getArrayWithPagination(totalCount,
             pS,
             pN,
@@ -31,7 +32,8 @@ export class CommentsQweryRepositoryClass {
     async findCommentById(id: string, userId?: string | undefined | null): Promise<commentViewType | undefined> {
         let comment = await commentsModel.findOne({_id: new ObjectId(id)});
         if (comment) {
-            return mappers.commentMapper(comment, userId)
+
+            return mappers.commentMapper(comment)
         } else {
             return undefined;
         }
