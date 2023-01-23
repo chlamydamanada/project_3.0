@@ -27,7 +27,7 @@ export class BlogsController {
                 @inject(PostsService) protected postsService: PostsService) {
     }
 
-    async getAllUsers(
+    async getAllBlogs(
         req: RequestWithQuery<blogQueryType>,
         res: Response<blogsViewType | string>
     ) {

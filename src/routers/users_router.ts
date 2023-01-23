@@ -4,9 +4,12 @@ import {passwordValidation} from "../middlewares/password.middleware";
 import {loginValidation} from "../middlewares/login.middleware";
 import {emailValidation} from "../middlewares/email.middleware";
 import {inputValMiddleware} from "../middlewares/inputValue.middleware";
-import {userController} from "../composition_root";
+import {container} from "../composition_root";
+import {UserController} from "../controllers/users_controller";
 
 export const usersRouter = Router();
+
+const userController = container.resolve(UserController)
 
 usersRouter.get(
     "/",

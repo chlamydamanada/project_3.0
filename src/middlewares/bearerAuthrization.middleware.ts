@@ -1,6 +1,9 @@
 import {NextFunction, Request, Response} from "express";
 import {usersQwRepository} from "../repositories/user_query_repository";
-import {authService} from "../composition_root";
+import {container} from "../composition_root";
+import {AuthServiceClass} from "../domain/auth_service";
+
+const authService = container.resolve(AuthServiceClass)
 
 export const bearerAuthMiddleware = async (
     req: Request,

@@ -18,10 +18,12 @@ import {
     limiterRegistrationConfirmation,
     limiterRegistrationEmailResending,
 } from "../middlewares/limitRegistration.middleware";
-import {authController} from "../composition_root";
+import {container} from "../composition_root";
+import {AuthController} from "../controllers/auth_controller";
 
 export const authRouter = Router();
 
+const authController = container.resolve(AuthController);
 
 authRouter.post(
     "/login",

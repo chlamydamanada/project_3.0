@@ -1,6 +1,8 @@
 import {body} from "express-validator";
-import {blogsService} from "../composition_root";
+import {container} from "../composition_root";
+import {BlogsService} from "../domain/blogs_service";
 
+const blogsService = container.resolve(BlogsService)
 
 export const blogIdValidation = body("blogId")
     .isString()

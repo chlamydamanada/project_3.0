@@ -19,6 +19,7 @@ import {PostsController} from "./controllers/posts_controller";
 import {CommentsDbRepositoryClass} from "./repositories/comments_db_repository";
 import {CommentsController} from "./controllers/comments_controller";
 import {SecurityController} from "./controllers/security_controller";
+import {Container} from "inversify";
 
 
 const usersDbRepository = new UsersDbRepositoryClass()
@@ -32,7 +33,7 @@ const commentsQweryRepository = new CommentsQweryRepositoryClass()
 const commentsDbRepository = new CommentsDbRepositoryClass()
 
 
-export const authService = new AuthServiceClass(//for middleware
+/*export const authService = new AuthServiceClass(//for middleware
     usersDbRepository,
     authRepository)
 const usersService = new UserServiceClass(
@@ -63,4 +64,50 @@ export const commentsController = new CommentsController(
     authService,
     commentsService,
     commentsQweryRepository);
-export const securityController = new SecurityController(authService);
+export const securityController = new SecurityController(authService);*/
+
+export const container = new Container();
+container.bind(SecurityController).toSelf();
+container.bind(CommentsController).toSelf();
+container.bind(PostsController).toSelf();
+container.bind(BlogsController).toSelf();
+container.bind(UserController).toSelf();
+container.bind(AuthController).toSelf();
+
+container.bind(CommentsService).toSelf();
+container.bind(PostsService).toSelf();
+container.bind(UserServiceClass).toSelf();
+container.bind(AuthServiceClass).toSelf();
+container.bind(BlogsService).toSelf();
+
+container.bind(AuthRepositoryClass).toSelf();
+container.bind(BlogsRepositoryClass).toSelf();
+container.bind(BlogsQwRepositoryClass).toSelf();
+container.bind(CommentsDbRepositoryClass).toSelf();
+container.bind(CommentsQweryRepositoryClass).toSelf();
+container.bind(PostsRepositoryClass).toSelf();
+container.bind(PostsQwRepositoryClass).toSelf();
+container.bind(UsersQwRepositoryClass).toSelf();
+container.bind(UsersDbRepositoryClass).toSelf();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

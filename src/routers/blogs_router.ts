@@ -7,12 +7,15 @@ import {nameValidation} from "../middlewares/name.middleware";
 import {descriptionValidation} from "../middlewares/description.middleware";
 import {websiteValidation} from "../middlewares/website.middleware";
 import {inputValMiddleware} from "../middlewares/inputValue.middleware";
-import {blogsController} from "../composition_root";
+import {container} from "../composition_root";
+import {BlogsController} from "../controllers/blogs_controller";
 
 export const blogsRouter = Router();
 
+const blogsController = container.resolve(BlogsController);
+
 blogsRouter.get("/",
-    blogsController.getAllUsers.bind(blogsController));
+    blogsController.getAllBlogs.bind(blogsController));
 blogsRouter.get("/:id",
     blogsController.getBlogById.bind(blogsController));
 blogsRouter.delete("/:id",
