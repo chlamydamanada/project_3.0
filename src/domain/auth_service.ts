@@ -40,6 +40,7 @@ export class AuthServiceClass {
     }
 
     async createAccessToken(userID: string) {
+        //todo move to jwt service and correct connection
         const token = jwt.sign({userId: userID}, settings.jwt_secretAT, {
             expiresIn: "1000 seconds",
         });

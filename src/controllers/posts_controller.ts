@@ -91,11 +91,7 @@ export class PostsController {
                 const newPost = await this.postsQwRepository.findPost(newPostId)
                 if (newPost) res.status(201).send(newPost);
                 console.log('*****////newPost//////*****:', newPost)
-
-            } else {
-                res.status(300).send("otsosi y traktorista")
             }
-
         } catch (e) {
             res.status(500).send("postsRouter.post/" + e)
         }
@@ -129,15 +125,15 @@ export class PostsController {
             if (!isPost) {
                 res.sendStatus(404);
                 return;
-            } else {
-                const newCommentId = await this.commentsService.createComment(
-                    req.body.content,
-                    req.user!,
-                    req.params.postId
-                );
-                const newComment = await this.commentsQweryRepository.findCommentById(newCommentId)
-                res.status(201).send(newComment);
             }
+            const newCommentId = await this.commentsService.createComment(
+                req.body.content,
+                req.user!,
+                req.params.postId
+            );
+            const newComment = await this.commentsQweryRepository.findCommentById(newCommentId)
+            res.status(201).send(newComment);
+
         } catch (e) {
             res.status(500).send("postsRouter.post/:postId/comments" + e)
         }

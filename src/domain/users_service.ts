@@ -10,6 +10,7 @@ export class UserServiceClass {
     }
 
     async createUser(
+        //todo 3 general function to creat user
         login: string,
         password: string,
         email: string
@@ -25,6 +26,7 @@ export class UserServiceClass {
     }
 
     async findUserById(id: string): Promise<boolean> {
+        //todo move to qwery repository and correct connection
         return await this.usersDbRepository.findUserById(id);
     }
 

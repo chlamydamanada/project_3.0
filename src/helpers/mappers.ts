@@ -62,12 +62,9 @@ export const mappers = {
     },
     async commentsMapper(comments: any[], userId?: string | undefined | null) {
         try {
-
-            const result = await Promise.all(comments.map(async comment => {
-                const item = await this.commentMapper(comment, userId)
-
-                return item
-            }))
+            const result = comments.map(async comment => {
+                await this.commentMapper(comment, userId)
+            })
             return result
 
         } catch (e) {
