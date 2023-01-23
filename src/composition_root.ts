@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {UsersDbRepositoryClass} from "./repositories/users_db_repository";
 import {AuthRepositoryClass} from "./repositories/auth_repository";
 import {AuthServiceClass} from "./domain/auth_service";

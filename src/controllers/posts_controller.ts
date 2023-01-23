@@ -19,14 +19,15 @@ import {postCreateType} from "../models/postCreateModel";
 import {postUpdateType} from "../models/postUpdateModel";
 import {commentViewType} from "../models/commentViewModel";
 import {commentsViewType} from "../models/commentsViewModel";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class PostsController {
-    constructor(protected postsService: PostsService,
-                protected authService: AuthServiceClass,
-                protected blogsQwRepository: BlogsQwRepositoryClass,
-                protected postsQwRepository: PostsQwRepositoryClass,
-                protected commentsQweryRepository: CommentsQweryRepositoryClass,
-                protected commentsService: CommentsService
+    constructor(@inject(PostsService) protected postsService: PostsService,
+                @inject(AuthServiceClass) protected authService: AuthServiceClass,
+                @inject(BlogsQwRepositoryClass) protected blogsQwRepository: BlogsQwRepositoryClass,
+                @inject(PostsQwRepositoryClass) protected postsQwRepository: PostsQwRepositoryClass,
+                @inject(CommentsQweryRepositoryClass) protected commentsQweryRepository: CommentsQweryRepositoryClass,
+                @inject(CommentsService) protected commentsService: CommentsService
     ) {
     }
 

@@ -1,7 +1,8 @@
 import {ObjectId} from "mongodb";
 import {postCreateServiceType} from "../models/postCreateModel";
 import {postsModel} from "./db";
-
+import {injectable} from "inversify";
+@injectable()
 export class PostsRepositoryClass {
     async deletePost(id: string): Promise<boolean> {
         let isDel = await postsModel.deleteOne({_id: new ObjectId(id)});

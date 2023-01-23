@@ -1,6 +1,7 @@
 import {refreshTokenMetaModel} from "./db";
 import {deviceViewType} from "../models/deviceViewModel";
-
+import {injectable} from "inversify";
+@injectable()
 export class AuthRepositoryClass  {
   async createRefreshTokenMeta(device: any): Promise<void> {
     await refreshTokenMetaModel.create(device);

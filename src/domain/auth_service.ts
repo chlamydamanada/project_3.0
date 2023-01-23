@@ -10,11 +10,12 @@ import {createNewConfirmationCode} from "../helpers/createNewConfirmationCode";
 import {generateHash, generateSalt} from "../helpers/generator_Hash";
 import {UserDbClass} from "../classes/UserDbClass";
 import {userAuthServiceType} from "../models/userAuthServiceModel";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class AuthServiceClass {
     constructor(
-        protected usersDbRepository: UsersDbRepositoryClass,
-        protected authRepository: AuthRepositoryClass) {
+        @inject(UsersDbRepositoryClass) protected usersDbRepository: UsersDbRepositoryClass,
+        @inject(AuthRepositoryClass) protected authRepository: AuthRepositoryClass) {
     }
 
     async checkCredentials(loginOrEmail: string, password: string) {

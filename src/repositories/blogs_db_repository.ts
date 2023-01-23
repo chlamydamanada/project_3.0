@@ -2,7 +2,8 @@ import {ObjectId} from "mongodb";
 import {blogViewType} from "../models/blogViewModel";
 import {blogCreateServiceType} from "../models/blogCreateModel";
 import {BlogsModel} from "./db";
-
+import {injectable} from "inversify";
+@injectable()
 export class BlogsRepositoryClass  {
     async findBlog(id: string): Promise<boolean> {
         let blog = await BlogsModel.findOne({_id: new ObjectId(id)});

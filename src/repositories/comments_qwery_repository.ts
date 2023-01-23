@@ -4,7 +4,8 @@ import {commentViewType} from "../models/commentViewModel";
 import {commentsViewType} from "../models/commentsViewModel";
 import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 import {mappers} from "../helpers/mappers";
-
+import {injectable} from "inversify";
+@injectable()
 export class CommentsQweryRepositoryClass {
     async findComments(
         postId: string,

@@ -3,10 +3,11 @@ import {userViewType} from "../models/userViewModel";
 import {commentDbType} from "../models/commentDbModel";
 import {CommentsDbClass} from "../classes/CommentsDbClass";
 import {LikeStatusOfCommentClass} from "../classes/LikeOfCommentsClass";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class CommentsService {
 
-    constructor(protected commentsDbRepository: CommentsDbRepositoryClass) {
+    constructor(@inject(CommentsDbRepositoryClass) protected commentsDbRepository: CommentsDbRepositoryClass) {
     }
 
     async createComment(

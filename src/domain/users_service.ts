@@ -3,10 +3,11 @@ import {userDbType} from "../models/userDBModel";
 import {generateHash, generateSalt} from "../helpers/generator_Hash";
 import {UserDbClass} from "../classes/UserDbClass";
 import {AuthServiceClass} from "./auth_service";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class UserServiceClass {
-    constructor(protected authService: AuthServiceClass,
-                protected usersDbRepository: UsersDbRepositoryClass) {
+    constructor(@inject(AuthServiceClass) protected authService: AuthServiceClass,
+                @inject(UsersDbRepositoryClass) protected usersDbRepository: UsersDbRepositoryClass) {
     }
 
     async createUser(

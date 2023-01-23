@@ -3,7 +3,8 @@ import {userAuthServiceType} from "../models/userAuthServiceModel";
 import {userDbType} from "../models/userDBModel";
 import {emailConfirmationType} from "../models/emailConfirmationServiceModel";
 import {usersModel} from "./db";
-
+import {injectable} from "inversify";
+@injectable()
 export class UsersDbRepositoryClass  {
     async createUser(user: userDbType): Promise<string> {
         const newUser = await usersModel.create(user);

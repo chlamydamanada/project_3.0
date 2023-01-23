@@ -2,7 +2,8 @@ import {ObjectId} from "mongodb";
 import {postsModel} from "./db";
 import {postsViewType} from "../models/postsViewModel";
 import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
-
+import {injectable} from "inversify";
+@injectable()
 export class PostsQwRepositoryClass  {
   async findPosts(pN: number, pS: number, sortField: string, sD: 1 | -1): Promise<postsViewType> {
     let totalCount = await postsModel.count({});

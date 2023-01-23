@@ -3,7 +3,8 @@ import {ObjectId} from "mongodb";
 import {usersViewType} from "../models/usersViewModel";
 import {sortingQueryFields} from "../helpers/sortingFields";
 import {usersModel} from "./db";
-
+import {injectable} from "inversify";
+@injectable()
 export class UsersQwRepositoryClass {
   async findAllUsers(
     pageNumber: number,

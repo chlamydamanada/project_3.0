@@ -11,12 +11,13 @@ import {userViewType} from "../models/userViewModel";
 import {meViewType} from "../models/meViewModel";
 import {userCreateType} from "../models/userCreateModel";
 import {newPasswordCreateType} from "../models/newPasswordCreateModel";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class AuthController {
-
-    constructor(protected authService: AuthServiceClass) {
-
+    constructor(@inject(AuthServiceClass) protected authService: AuthServiceClass) {
     }
+
     async login(req: RequestWithBody<loginCreateType>,
                 res: Response<{ accessToken: string } | string>) {
         try {

@@ -7,7 +7,8 @@ import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 import {postsViewType} from "../models/postsViewModel";
 import {postViewType} from "../models/postViewModel";
 import {mappers} from "../helpers/mappers";
-
+import {injectable} from "inversify";
+@injectable()
 export class BlogsQwRepositoryClass {
     async findBlogs(
         searchNameTerm: string | undefined,

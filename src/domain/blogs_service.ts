@@ -2,10 +2,11 @@ import {BlogsRepositoryClass} from "../repositories/blogs_db_repository";
 import {blogCreateServiceType} from "../models/blogCreateModel";
 import {blogViewType} from "../models/blogViewModel";
 import {BlogDbClass} from "../classes/BlogDbClass";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class BlogsService {
 
-  constructor(protected blogsRepository : BlogsRepositoryClass) {
+  constructor(@inject(BlogsRepositoryClass) protected blogsRepository : BlogsRepositoryClass) {
   }
 
   async findBlog(id: string): Promise<boolean> {

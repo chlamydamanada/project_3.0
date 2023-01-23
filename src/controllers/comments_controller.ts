@@ -4,11 +4,12 @@ import {CommentsQweryRepositoryClass} from "../repositories/comments_qwery_repos
 import {RequestWithURL, RequestWithUrlAndBody} from "../models/request_types";
 import {Response} from "express";
 import {commentViewType} from "../models/commentViewModel";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class CommentsController {
-    constructor(protected authService: AuthServiceClass,
-                protected commentsService: CommentsService,
-                protected commentsQweryRepository: CommentsQweryRepositoryClass) {
+    constructor(@inject(AuthServiceClass) protected authService: AuthServiceClass,
+                @inject(CommentsService) protected commentsService: CommentsService,
+                @inject(CommentsQweryRepositoryClass) protected commentsQweryRepository: CommentsQweryRepositoryClass) {
     }
 
     async getCommentById(req: RequestWithURL<{ commentId: string }>,

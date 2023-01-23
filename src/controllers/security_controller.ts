@@ -3,9 +3,10 @@ import {RequestWithURL, RequestWithUser, RequestWithUserAndDeviceId} from "../mo
 import {userViewType} from "../models/userViewModel";
 import {Response} from "express";
 import {deviceViewType} from "../models/deviceViewModel";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class SecurityController {
-    constructor(protected authService: AuthServiceClass) {
+    constructor(@inject(AuthServiceClass) protected authService: AuthServiceClass) {
     }
 
     async getAllDevices(req: RequestWithUser<userViewType>,

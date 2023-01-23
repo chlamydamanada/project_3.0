@@ -18,11 +18,13 @@ import {postViewType} from "../models/postViewModel";
 import {blogUpdateType} from "../models/blogUpdateModel";
 import {postQueryType} from "../models/postQueryModel";
 import {postsViewType} from "../models/postsViewModel";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class BlogsController {
-    constructor(protected blogsService: BlogsService,
-                protected blogsQwRepository: BlogsQwRepositoryClass,
-                protected postsService: PostsService) {
+    constructor(@inject(BlogsService) protected blogsService: BlogsService,
+                @inject(BlogsQwRepositoryClass) protected blogsQwRepository: BlogsQwRepositoryClass,
+                @inject(PostsService) protected postsService: PostsService) {
     }
 
     async getAllUsers(

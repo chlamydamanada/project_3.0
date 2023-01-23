@@ -7,10 +7,11 @@ import {usersViewType} from "../models/usersViewModel";
 import {sortingQueryFields} from "../helpers/sortingFields";
 import {userCreateType} from "../models/userCreateModel";
 import {userViewType} from "../models/userViewModel";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class UserController {
-    constructor(protected usersService: UserServiceClass,
-                protected usersQwRepository: UsersQwRepositoryClass) {
+    constructor(@inject(UserServiceClass) protected usersService: UserServiceClass,
+                @inject(UsersQwRepositoryClass) protected usersQwRepository: UsersQwRepositoryClass) {
     }
 
     async getAllUsers(req: RequestWithQuery<userQueryType>,

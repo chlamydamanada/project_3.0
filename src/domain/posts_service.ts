@@ -1,10 +1,11 @@
 import {PostsRepositoryClass} from "../repositories/posts_db_repository";
 import {postCreateServiceType} from "../models/postCreateModel";
 import {PostDbClass} from "../classes/PostDbClass";
-
+import {inject, injectable} from "inversify";
+@injectable()
 export class PostsService {
 
-    constructor(protected postsRepository: PostsRepositoryClass) {
+    constructor(@inject(PostsRepositoryClass) protected postsRepository: PostsRepositoryClass) {
     }
 
     async deletePost(id: string) {
