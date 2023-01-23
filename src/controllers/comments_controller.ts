@@ -68,6 +68,7 @@ export class CommentsController {
             const comment = await this.commentsQweryRepository.findCommentById(req.params.commentId);
             if (!comment) {
                 res.sendStatus(404);
+                return;
             }
             await this.commentsService.generateStatusOfComment(
                 req.params.commentId,

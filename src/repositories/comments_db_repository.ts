@@ -1,4 +1,3 @@
-import {commentViewType} from "../models/commentViewModel";
 import {ObjectId} from "mongodb";
 import {commentDbType} from "../models/commentDbModel";
 import {commentsModel, likeStatusOfCommentsModel} from "./db";
@@ -7,8 +6,7 @@ import {likeStatusOfCommentDbType} from "../models/likeStatusOfCommentDbModel";
 export class CommentsDbRepositoryClass {
     async createComment(comment: commentDbType): Promise<string> {
         const result = await commentsModel.create(comment);
-        return  result._id.toString();
-
+        return result._id.toString();
     }
 
     async deleteComment(commentId: string): Promise<boolean> {
@@ -41,6 +39,6 @@ export class CommentsDbRepositoryClass {
     }
 
     async updateStatusOfComment(commentId: string, userId: string, status: string) {
-        await likeStatusOfCommentsModel.updateOne({commentId: commentId, userId: userId},{likeStatus: status})
+        await likeStatusOfCommentsModel.updateOne({commentId: commentId, userId: userId}, {likeStatus: status})
     }
 };
