@@ -9,6 +9,7 @@ import {bearerAuthMiddleware} from "../middlewares/bearerAuthrization.middleware
 import {contentOfCommentsMiddleware} from "../middlewares/contentOfComments.middleware";
 import {container} from "../composition_root";
 import {PostsController} from "../controllers/posts_controller";
+import {commentStatusValidation} from "../middlewares/commentStatus.middleware";
 
 export const postsRouter = Router();
 
@@ -50,3 +51,8 @@ postsRouter.post(
 postsRouter.get(
     "/:postId/comments",
     postsController.getCommentsByPostId.bind(postsController));
+postsRouter.put("/:postId/like-status",
+    bearerAuthMiddleware,
+    commentStatusValidation,
+    inputValMiddleware,
+    postsController.updateLikeStatusByPostId.bind(postsController));

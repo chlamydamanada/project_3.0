@@ -1,4 +1,5 @@
-import {likeStatusOfCommentsModel} from "../repositories/db";
+import {likeStatusOfCommentsModel, likeStatusOfPostsModel} from "../repositories/db";
+import {newPostMapperType} from "../models/newPostMapperModel";
 
 export const mappers = {
     blogMapper(blog: any) {
@@ -20,26 +21,58 @@ export const mappers = {
         }));
         return result;
     },
-    postsMapper(posts: any[]) {
-        const result = posts.map((p) => ({
-            id: p._id.toString(),
-            title: p.title,
-            shortDescription: p.shortDescription,
-            content: p.content,
-            blogId: p.blogId,
-            blogName: p.blogName,
-            createdAt: p.createdAt,
-        }))
-        return result;
+    async postsMapper(posts: any[], userId?: string | undefined | null) {
+        try {
+            const result = posts.map(async post => {
+                await this.postMapper(post, userId)
+            })
+            return result
+
+        } catch (e) {
+            console.log("postsMapper error:", e)
+        }
+
     },
-    postMapper() {
+    async postMapper(post: any, userId?: string | undefined | null) {
+        const newPost: newPostMapperType = {
+            id: post._id.toString(),
+            title: post.title,
+            shortDescription: post.shortDescription,
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt,
+            extendedLikesInfo: {
+                likesCount: await likeStatusOfPostsModel
+                    .count({postId: post._id, likeStatus: "Like"}),
+                dislikesCount: await likeStatusOfPostsModel
+                    .count({postId: post._id, likeStatus: "Dislike"}),
+                myStatus: "None",
+                newestLikes: null
+            }
+        };
+        const newLikes = await likeStatusOfPostsModel.find({postId: post._id, likeStatus: "Like"})
+            .sort({addedAt: -1}).limit(3).lean();
+        newPost.extendedLikesInfo.newestLikes = newLikes.map(s => ({
+            addedAt: s.addedAt,
+            userId: s.userId,
+            login: s.userLogin
+        }))
+        if (!userId) return newPost;
+        let userReaction = await likeStatusOfPostsModel.findOne({postId: post._id, userId: userId})
+        if (userReaction) {
+            newPost.extendedLikesInfo.myStatus = userReaction.likeStatus;
+        }
+        return newPost;
+
+
     },
     userMapper() {
     },
     usersMapper() {
     },
     async commentMapper(comment: any, userId?: string | undefined | null) {
-        let newComment = {
+        const newComment = {
             id: comment._id.toString(),
             content: comment.content,
             userId: comment.userId,

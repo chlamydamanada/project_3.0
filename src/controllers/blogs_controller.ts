@@ -19,12 +19,14 @@ import {blogUpdateType} from "../models/blogUpdateModel";
 import {postQueryType} from "../models/postQueryModel";
 import {postsViewType} from "../models/postsViewModel";
 import {inject, injectable} from "inversify";
+import {AuthServiceClass} from "../domain/auth_service";
 
 @injectable()
 export class BlogsController {
     constructor(@inject(BlogsService) protected blogsService: BlogsService,
                 @inject(BlogsQwRepositoryClass) protected blogsQwRepository: BlogsQwRepositoryClass,
-                @inject(PostsService) protected postsService: PostsService) {
+                @inject(PostsService) protected postsService: PostsService,
+                @inject(AuthServiceClass) protected authService: AuthServiceClass) {
     }
 
     async getAllBlogs(
@@ -144,12 +146,19 @@ export class BlogsController {
                 let pN = pageNumber ? +pageNumber : 1;
                 let pS = pageSize ? +pageSize : 10;
                 let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
+                //todo pagination
+                let userID: null | string = null;
+                if (req.headers.authorization) {
+                    let token = req.headers.authorization.split(" ")[1];
+                    userID = await this.authService.decodeToken(token);
+                }
                 let postsByBlogId = await this.blogsQwRepository.findPostsById(
                     req.params.blogId,
                     pN,
                     pS,
                     sortField,
-                    sD
+                    sD,
+                    userID
                 );
                 res.status(200).send(postsByBlogId);
             } else {

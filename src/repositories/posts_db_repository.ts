@@ -1,7 +1,8 @@
 import {ObjectId} from "mongodb";
 import {postCreateServiceType} from "../models/postCreateModel";
-import {postsModel} from "./db";
+import {likeStatusOfCommentsModel, likeStatusOfPostsModel, postsModel} from "./db";
 import {injectable} from "inversify";
+import {LikeStatusOfPostClass} from "../classes/LikeStatusOfPost";
 @injectable()
 export class PostsRepositoryClass {
     async deletePost(id: string): Promise<boolean> {
@@ -42,5 +43,19 @@ export class PostsRepositoryClass {
         } else {
             return true;
         }
+    }
+
+    async findStatusOfPost(postId: string, userId: string){
+        const status = await likeStatusOfPostsModel.findOne({postId: postId, userId: userId});
+        if (status) return status;
+        if (!status) return undefined;
+    }
+
+    async createStatusOfPost(newStatus: LikeStatusOfPostClass){
+        await likeStatusOfPostsModel.create(newStatus);
+    }
+
+    async updateStatusOfPost(postId: string, userId: string, status: string) {
+        await likeStatusOfCommentsModel.updateOne({postId: postId, userId: userId}, {likeStatus: status})
     }
 };

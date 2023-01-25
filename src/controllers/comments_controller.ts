@@ -5,6 +5,7 @@ import {RequestWithURL, RequestWithUrlAndBody} from "../models/request_types";
 import {Response} from "express";
 import {commentViewType} from "../models/commentViewModel";
 import {inject, injectable} from "inversify";
+
 @injectable()
 export class CommentsController {
     constructor(@inject(AuthServiceClass) protected authService: AuthServiceClass,
@@ -20,10 +21,6 @@ export class CommentsController {
                 let token = req.headers.authorization.split(" ")[1];
                 userID = await this.authService.decodeToken(token);
             }
-
-            console.log('******', req.headers.authorization)
-            console.log('+++++', userID)
-
             const comment = await this.commentsQweryRepository.findCommentById(
                 req.params.commentId,
                 userID

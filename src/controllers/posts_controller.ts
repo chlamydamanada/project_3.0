@@ -20,6 +20,7 @@ import {postUpdateType} from "../models/postUpdateModel";
 import {commentViewType} from "../models/commentViewModel";
 import {commentsViewType} from "../models/commentsViewModel";
 import {inject, injectable} from "inversify";
+
 @injectable()
 export class PostsController {
     constructor(@inject(PostsService) protected postsService: PostsService,
@@ -39,7 +40,12 @@ export class PostsController {
             let pN = pageNumber ? +pageNumber : 1;
             let pS = pageSize ? +pageSize : 10;
             let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
-            const posts = await this.postsQwRepository.findPosts(pN, pS, sortField, sD);
+            let userID: null | string = null;
+            if (req.headers.authorization) {
+                let token = req.headers.authorization.split(" ")[1];
+                userID = await this.authService.decodeToken(token);
+            }
+            const posts = await this.postsQwRepository.findPosts(pN, pS, sortField, sD, userID);
             res.status(200).send(posts);
         } catch (e) {
             res.status(500).send("postsRouter.get/" + e)
@@ -49,7 +55,12 @@ export class PostsController {
     async getPostById(req: RequestWithURL<{ id: string }>,
                       res: Response<postViewType | string>) {
         try {
-            let post = await this.postsQwRepository.findPost(req.params.id);
+            let userID: null | string = null;
+            if (req.headers.authorization) {
+                let token = req.headers.authorization.split(" ")[1];
+                userID = await this.authService.decodeToken(token);
+            }
+            const post = await this.postsQwRepository.findPost(req.params.id);
             if (!post) {
                 res.sendStatus(404);
             } else {
@@ -178,4 +189,26 @@ export class PostsController {
             res.status(500).send("postsRouter.get/:postId/comments" + e)
         }
     }
+
+    async updateLikeStatusByPostId(req: RequestWithUrlAndBody<{ postId: string }, { likeStatus: string }>,
+                                   res: Response<string>) {
+        try {
+            const post = await this.postsQwRepository.findPost(req.params.postId);
+            if (!post) {
+                res.sendStatus(404);
+                return;
+            }
+            await this.postsService.generateStatusOfPost(
+                req.params.postId,
+                req.user!.id,
+                req.user!.login,
+                req.body.likeStatus)
+            res.sendStatus(204);
+
+        } catch (e) {
+            res.status(500).send("commentsRouter.put/:commentId" + e)
+        }
+
+    }
+
 };

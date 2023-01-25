@@ -45,7 +45,8 @@ export class BlogsQwRepositoryClass {
         pN: number,
         pS: number,
         sortField: string,
-        sD: 1 | -1
+        sD: 1 | -1,
+        userId?: string | undefined | null
     ): Promise<postsViewType> {
         let totalCount = await postsModel.count({blogId: blogId});
         let posts = await postsModel
@@ -54,7 +55,8 @@ export class BlogsQwRepositoryClass {
             .skip((pN - 1) * pS)
             .limit(pS)
             .lean();
-        const items: postViewType[] = mappers.postsMapper(posts);
+        const items: any = mappers.postsMapper(posts, userId);
+        //todo types of items
         const result =  getArrayWithPagination(
             totalCount,
             pS,
