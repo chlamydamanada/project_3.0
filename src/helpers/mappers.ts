@@ -47,15 +47,15 @@ export const mappers = {
             createdAt: post.createdAt,
             extendedLikesInfo: {
                 likesCount: await likeStatusModel
-                    .count({entityId: post._id, entity: 'post', likeStatus: "Like"}),
+                    .count({entityId: post._id, entity: 'post', status: "Like"}),
                 dislikesCount: await likeStatusModel
-                    .count({entityId: post._id, entity: 'post', likeStatus: "Dislike"}),
+                    .count({entityId: post._id, entity: 'post', status: "Dislike"}),
                 myStatus: "None",
                 newestLikes: [{}]
             }
         };
 
-        const newLikes = await likeStatusModel.find({entityId: post._id, entity: 'post', likeStatus: "Like"})
+        const newLikes = await likeStatusModel.find({entityId: post._id, entity: 'post', status: "Like"})
             .sort({addedAt: -1}).limit(3).lean();
         newPost.extendedLikesInfo.newestLikes = newLikes.map(s => ({
             addedAt: s.addedAt,
