@@ -46,8 +46,8 @@ export class PostsRepositoryClass {
         }
     }
 
-    async findStatusOfPost(postId: string, userId: string){
-        const status = await likeStatusModel.findOne({entityId: postId, userId: userId});
+    async findStatusOfPost(postId: string, entity: string, userId: string){
+        const status = await likeStatusModel.findOne({entityId: postId, entity:entity, userId: userId});
         if (status) return status;
         if (!status) return undefined;
     }
@@ -56,7 +56,7 @@ export class PostsRepositoryClass {
         await likeStatusModel.create(newStatus);
     }
 
-    async updateStatusOfPost(postId: string, userId: string, status: string) {
-        await likeStatusModel.updateOne({entityId: postId, userId: userId}, {status: status})
+    async updateStatusOfPost(postId: string, entity: string, userId: string, status: string) {
+        await likeStatusModel.updateOne({entityId: postId, entity:entity, userId: userId}, {status: status})
     }
 };

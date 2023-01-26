@@ -55,14 +55,14 @@ export class PostsService {
         return result;
     }
     async generateStatusOfPost(postId: string, userId: string, userLogin: string, status: string){
-        const statusOfPost = await this.postsRepository.findStatusOfPost(postId, userId);
+        const statusOfPost = await this.postsRepository.findStatusOfPost(postId, "post", userId);
 
         if (!statusOfPost) {
-            const newStatus = new LikeStatusClass("post",postId, userId, userLogin, status);
+            const newStatus = new LikeStatusClass("post", postId, userId, userLogin, status);
             await this.postsRepository.createStatusOfPost(newStatus);
 
         }
-        await this.postsRepository.updateStatusOfPost(postId, userId, status);
+        await this.postsRepository.updateStatusOfPost(postId, "post", userId, status);
     }
 }
 

@@ -30,8 +30,8 @@ export class CommentsDbRepositoryClass {
         return newComment.matchedCount === 1;
     }
 
-    async findStatusOfComment(commentId: string, userId: string) {
-        const status = await likeStatusModel.findOne({entityId: commentId, userId: userId});
+    async findStatusOfComment(entity: string, commentId: string, userId: string) {
+        const status = await likeStatusModel.findOne({entityId: commentId, entity: entity, userId: userId});
         if (status) return status;
         if (!status) return undefined;
     }
@@ -40,7 +40,7 @@ export class CommentsDbRepositoryClass {
         await likeStatusModel.create(newStatus);
     }
 
-    async updateStatusOfComment(commentId: string, userId: string, status: string) {
-        await likeStatusModel.updateOne({entityId: commentId, userId: userId}, {status: status})
+    async updateStatusOfComment(entity: string, commentId: string, userId: string, status: string) {
+        await likeStatusModel.updateOne({entityId: commentId, entity: entity, userId: userId}, {status: status})
     }
 };

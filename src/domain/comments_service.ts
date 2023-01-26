@@ -35,12 +35,12 @@ export class CommentsService {
     }
 
     async generateStatusOfComment(commentId: string, userId: string, userLogin: string, status: string) {
-        const statusOfComment = await this.commentsDbRepository.findStatusOfComment(commentId, userId);
+        const statusOfComment = await this.commentsDbRepository.findStatusOfComment("comment",commentId, userId);
         if (!statusOfComment) {
             const newStatus = new LikeStatusClass("comment", commentId, userId, userLogin, status);
             await this.commentsDbRepository.createStatusOfComment(newStatus);
         }
-        await this.commentsDbRepository.updateStatusOfComment(commentId, userId, status)
+        await this.commentsDbRepository.updateStatusOfComment("comment",commentId, userId, status)
     }
 }
 
