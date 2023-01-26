@@ -21,12 +21,14 @@ import {postsViewType} from "../models/postsViewModel";
 import {inject, injectable} from "inversify";
 import {AuthServiceClass} from "../domain/auth_service";
 import {findUserForLikeStatus} from "../helpers/findUserForLikeStatus";
+import {PostsQwRepositoryClass} from "../repositories/posts_qwery_repo";
 
 @injectable()
 export class BlogsController {
     constructor(@inject(BlogsService) protected blogsService: BlogsService,
                 @inject(BlogsQwRepositoryClass) protected blogsQwRepository: BlogsQwRepositoryClass,
                 @inject(PostsService) protected postsService: PostsService,
+                @inject(PostsQwRepositoryClass) protected postsQwRepository: PostsQwRepositoryClass,
                 @inject(AuthServiceClass) protected authService: AuthServiceClass) {
     }
 
@@ -102,13 +104,14 @@ export class BlogsController {
             if (!getBlog) {
                 res.sendStatus(404);
             } else {
-                const newPost = await this.postsService.createPost(
+                const newPostId = await this.postsService.createPost(
                     req.body.title,
                     req.body.shortDescription,
                     req.body.content,
                     req.params.blogId,
                     getBlog.name
                 );
+                const newPost = await this.postsQwRepository.findPost(newPostId)
                 res.status(201).send(newPost);
             }
         } catch (e) {
