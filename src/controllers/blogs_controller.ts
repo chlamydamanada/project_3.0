@@ -20,6 +20,7 @@ import {postQueryType} from "../models/postQueryModel";
 import {postsViewType} from "../models/postsViewModel";
 import {inject, injectable} from "inversify";
 import {AuthServiceClass} from "../domain/auth_service";
+import {findUserForLikeStatus} from "../helpers/findUserForLikeStatus";
 
 @injectable()
 export class BlogsController {
@@ -147,18 +148,20 @@ export class BlogsController {
                 let pS = pageSize ? +pageSize : 10;
                 let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
                 //todo pagination
-                let userID: null | string = null;
+
+                /*let userID: null | string = null;
                 if (req.headers.authorization) {
                     let token = req.headers.authorization.split(" ")[1];
                     userID = await this.authService.decodeToken(token);
-                }
+                }*/
+                const user = await findUserForLikeStatus(req.headers.authorization)
                 let postsByBlogId = await this.blogsQwRepository.findPostsById(
                     req.params.blogId,
                     pN,
                     pS,
                     sortField,
                     sD,
-                    userID
+                    user
                 );
                 res.status(200).send(postsByBlogId);
             } else {

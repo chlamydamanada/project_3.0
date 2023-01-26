@@ -5,6 +5,7 @@ import {RequestWithURL, RequestWithUrlAndBody} from "../models/request_types";
 import {Response} from "express";
 import {commentViewType} from "../models/commentViewModel";
 import {inject, injectable} from "inversify";
+import {findUserForLikeStatus} from "../helpers/findUserForLikeStatus";
 
 @injectable()
 export class CommentsController {
@@ -16,14 +17,15 @@ export class CommentsController {
     async getCommentById(req: RequestWithURL<{ commentId: string }>,
                          res: Response<commentViewType | string>) {
         try {
-            let userID: null | string = null;
+            /*let userID: null | string = null;
             if (req.headers.authorization) {
                 let token = req.headers.authorization.split(" ")[1];
                 userID = await this.authService.decodeToken(token);
-            }
+            }*/
+            const user = await findUserForLikeStatus(req.headers.authorization)
             const comment = await this.commentsQweryRepository.findCommentById(
                 req.params.commentId,
-                userID
+                user
             );
             if (!comment) {
                 res.sendStatus(404);
@@ -71,6 +73,7 @@ export class CommentsController {
             await this.commentsService.generateStatusOfComment(
                 req.params.commentId,
                 req.user!.id,
+                req.user!.login,
                 req.body.likeStatus)
             res.sendStatus(204);
 

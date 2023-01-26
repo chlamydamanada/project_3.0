@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 
 export const likeStatusSchema = new mongoose.Schema({
-    commentId: {type: String, required: true},
+    entity: {type: String, required: true},
+    entityId: {type: String, required: true},
     userId: {type: String, required: true},
-    likeStatus: {type: String, required: true},
-    createdAt: {type: String, required: true},
+    userLogin: {type: String, required: true},
+    status: {type: String, required: true},
+    addedAt: {type: String, required: true},
 })

@@ -20,6 +20,7 @@ import {postUpdateType} from "../models/postUpdateModel";
 import {commentViewType} from "../models/commentViewModel";
 import {commentsViewType} from "../models/commentsViewModel";
 import {inject, injectable} from "inversify";
+import {findUserForLikeStatus} from "../helpers/findUserForLikeStatus";
 
 @injectable()
 export class PostsController {
@@ -40,12 +41,14 @@ export class PostsController {
             let pN = pageNumber ? +pageNumber : 1;
             let pS = pageSize ? +pageSize : 10;
             let sD: 1 | -1 = sortDirection === "asc" ? 1 : -1;
-            let userID: null | string = null;
+            //todo pagination
+            /*let userID: null | string = null;
             if (req.headers.authorization) {
                 let token = req.headers.authorization.split(" ")[1];
                 userID = await this.authService.decodeToken(token);
-            }
-            const posts = await this.postsQwRepository.findPosts(pN, pS, sortField, sD, userID);
+            }*/
+            const user = await findUserForLikeStatus(req.headers.authorization);
+            const posts = await this.postsQwRepository.findPosts(pN, pS, sortField, sD, user);
             res.status(200).send(posts);
         } catch (e) {
             res.status(500).send("postsRouter.get/" + e)
@@ -55,12 +58,13 @@ export class PostsController {
     async getPostById(req: RequestWithURL<{ id: string }>,
                       res: Response<postViewType | string>) {
         try {
-            let userID: null | string = null;
+           /* let userID: null | string = null;
             if (req.headers.authorization) {
                 let token = req.headers.authorization.split(" ")[1];
                 userID = await this.authService.decodeToken(token);
-            }
-            const post = await this.postsQwRepository.findPost(req.params.id);
+            }*/
+            const user = await findUserForLikeStatus(req.headers.authorization);
+            const post = await this.postsQwRepository.findPost(req.params.id, user);
             if (!post) {
                 res.sendStatus(404);
             } else {
@@ -90,7 +94,7 @@ export class PostsController {
                      res: Response<postViewType | string>) {
         try {
             const getBlog = await this.blogsQwRepository.findBlog(req.body.blogId);
-            console.log('*****////getBlog//////*****:', getBlog)
+
             if (getBlog) {
                 const newPostId = await this.postsService.createPost(
                     req.body.title,
@@ -99,10 +103,10 @@ export class PostsController {
                     req.body.blogId,
                     getBlog.name
                 );
-                console.log('*****////newPostId//////*****:', newPostId)
+
                 const newPost = await this.postsQwRepository.findPost(newPostId)
                 if (newPost) res.status(201).send(newPost);
-                console.log('*****////newPost//////*****:', newPost)
+
             }
         } catch (e) {
             res.status(500).send("postsRouter.post/" + e)
@@ -154,11 +158,12 @@ export class PostsController {
     async getCommentsByPostId(req: RequestWithUrlAndQuery<{ postId: string }, postQueryType>,
                               res: Response<commentsViewType | string>) {
         try {
-            let userID: null | string = null;
+            /*let userID: null | string = null;
             if (req.headers.authorization) {
                 let token = req.headers.authorization.split(" ")[1];
                 userID = await this.authService.decodeToken(token);
-            }
+            }*/
+            const user = await findUserForLikeStatus(req.headers.authorization);
 
             const isPost = await this.postsQwRepository.findPost(req.params.postId);
             if (!isPost) {
@@ -176,7 +181,7 @@ export class PostsController {
                     pS,
                     sortField,
                     sD,
-                    userID
+                    user
                 );
                 if (!comments) {
                     res.sendStatus(404);
@@ -198,6 +203,7 @@ export class PostsController {
                 res.sendStatus(404);
                 return;
             }
+
             await this.postsService.generateStatusOfPost(
                 req.params.postId,
                 req.user!.id,
@@ -206,7 +212,7 @@ export class PostsController {
             res.sendStatus(204);
 
         } catch (e) {
-            res.status(500).send("commentsRouter.put/:commentId" + e)
+            res.status(500).send("postsRouter.put/:postId" + e)
         }
 
     }

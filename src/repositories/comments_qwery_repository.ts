@@ -5,6 +5,7 @@ import {commentsViewType} from "../models/commentsViewModel";
 import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 import {mappers} from "../helpers/mappers";
 import {injectable} from "inversify";
+import {userForLikeStatusType} from "../models/userForLikeStatusModel";
 @injectable()
 export class CommentsQweryRepositoryClass {
     async findComments(
@@ -13,7 +14,7 @@ export class CommentsQweryRepositoryClass {
         pS: number,
         sortField: string,
         sD: 1 | -1,
-        userId?: string | undefined | null
+        user?: userForLikeStatusType | undefined | null
     ): Promise<commentsViewType> {
         const totalCount = await commentsModel.count({postId: postId});
         const comments = await commentsModel
@@ -23,7 +24,7 @@ export class CommentsQweryRepositoryClass {
             .limit(pS)
             .lean();
         const items = await Promise.all(comments.map(async comment => {
-            const item = await mappers.commentMapper(comment, userId)
+            const item = await mappers.commentMapper(comment, user)
             return item
         }))
         const result = getArrayWithPagination(totalCount,
@@ -33,10 +34,10 @@ export class CommentsQweryRepositoryClass {
         return result;
     }
 
-    async findCommentById(id: string, userId?: string | undefined | null): Promise<commentViewType | undefined> {
+    async findCommentById(id: string, user?: userForLikeStatusType | undefined | null): Promise<commentViewType | undefined> {
         let comment = await commentsModel.findOne({_id: new ObjectId(id)});
         if (comment) {
-            const result = await mappers.commentMapper(comment, userId);
+            const result = await mappers.commentMapper(comment, user);
             return result;
         } else {
             return undefined;

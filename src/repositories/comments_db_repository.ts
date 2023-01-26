@@ -1,8 +1,9 @@
 import {ObjectId} from "mongodb";
 import {commentDbType} from "../models/commentDbModel";
-import {commentsModel, likeStatusOfCommentsModel} from "./db";
-import {likeStatusOfCommentDbType} from "../models/likeStatusOfCommentDbModel";
+import {commentsModel, likeStatusModel} from "./db";
+import {likeStatusDbType} from "../models/likeStatusOfCommentDbModel";
 import {injectable} from "inversify";
+
 @injectable()
 export class CommentsDbRepositoryClass {
     async createComment(comment: commentDbType): Promise<string> {
@@ -30,16 +31,16 @@ export class CommentsDbRepositoryClass {
     }
 
     async findStatusOfComment(commentId: string, userId: string) {
-        const status = await likeStatusOfCommentsModel.findOne({commentId: commentId, userId: userId});
+        const status = await likeStatusModel.findOne({entityId: commentId, userId: userId});
         if (status) return status;
         if (!status) return undefined;
     }
 
-    async createStatusOfComment(newStatus: likeStatusOfCommentDbType) {
-        await likeStatusOfCommentsModel.create(newStatus);
+    async createStatusOfComment(newStatus: likeStatusDbType) {
+        await likeStatusModel.create(newStatus);
     }
 
     async updateStatusOfComment(commentId: string, userId: string, status: string) {
-        await likeStatusOfCommentsModel.updateOne({commentId: commentId, userId: userId}, {likeStatus: status})
+        await likeStatusModel.updateOne({entityId: commentId, userId: userId}, {status: status})
     }
 };

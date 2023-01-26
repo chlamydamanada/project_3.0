@@ -1,5 +1,3 @@
-import {likeStatusOfPostsModel} from "../repositories/db";
-
 export type newPostMapperType = {
     id: string,
     title: string,
@@ -12,7 +10,7 @@ export type newPostMapperType = {
         likesCount: number,
         dislikesCount: number,
         myStatus: string,
-        newestLikes: newestLikesType[] | null
+        newestLikes: newestLikesType[] | [{}]
     }
 }
 

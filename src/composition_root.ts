@@ -33,10 +33,10 @@ const commentsQweryRepository = new CommentsQweryRepositoryClass()
 const commentsDbRepository = new CommentsDbRepositoryClass()
 
 
-/*export const authService = new AuthServiceClass(//for middleware
+export const authService = new AuthServiceClass(//for middleware
     usersDbRepository,
     authRepository)
-const usersService = new UserServiceClass(
+/*const usersService = new UserServiceClass(
     authService,
     usersDbRepository)
 export const blogsService = new BlogsService(blogsRepository)////for middleware

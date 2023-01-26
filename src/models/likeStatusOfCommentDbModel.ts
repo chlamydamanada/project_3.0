@@ -1,6 +1,8 @@
-export type likeStatusOfCommentDbType = {
-    commentId: string,
+export type likeStatusDbType = {
+    entity: string,
+    entityId: string,
     userId: string,
-    likeStatus: string,
-    createdAt: string
+    userLogin: string,
+    status: string,
+    addedAt: string
 }

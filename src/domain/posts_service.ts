@@ -4,6 +4,7 @@ import {PostDbClass} from "../classes/PostDbClass";
 import {inject, injectable} from "inversify";
 import {LikeStatusOfCommentClass} from "../classes/LikeOfCommentsClass";
 import {LikeStatusOfPostClass} from "../classes/LikeStatusOfPost";
+import {LikeStatusClass} from "../classes/LikeStatusClass";
 @injectable()
 export class PostsService {
 
@@ -55,9 +56,11 @@ export class PostsService {
     }
     async generateStatusOfPost(postId: string, userId: string, userLogin: string, status: string){
         const statusOfPost = await this.postsRepository.findStatusOfPost(postId, userId);
+
         if (!statusOfPost) {
-            const newStatus = new LikeStatusOfPostClass(postId, userId, userLogin, status);
+            const newStatus = new LikeStatusClass("post",postId, userId, userLogin, status);
             await this.postsRepository.createStatusOfPost(newStatus);
+
         }
         await this.postsRepository.updateStatusOfPost(postId, userId, status);
     }

@@ -6,7 +6,7 @@ import {postsSchema} from "../mongooseOptions/postsSchema";
 import {commentsSchema} from "../mongooseOptions/commentsSchema";
 import {refreshTokenMetaSchema} from "../mongooseOptions/refreshTokenMetaSchema";
 import {likeStatusSchema} from "../mongooseOptions/likeStatusSchema";
-import {likeStatusOfPostSchema} from "../mongooseOptions/likeStatusOfPostSchema";
+
 
 dotenv.config();
 
@@ -18,8 +18,8 @@ export const postsModel = mongoose.model("posts", postsSchema);
 export const usersModel = mongoose.model("users", usersSchema);
 export const commentsModel = mongoose.model("comments", commentsSchema);
 export const refreshTokenMetaModel = mongoose.model("refreshTokenMeta", refreshTokenMetaSchema);
-export const likeStatusOfCommentsModel = mongoose.model("likeStatus", likeStatusSchema);
-export const likeStatusOfPostsModel = mongoose.model("likeStatusOfPosts", likeStatusOfPostSchema)
+export const likeStatusModel = mongoose.model("likeStatus", likeStatusSchema);
+
 
 export async function runDb() {
     try {

@@ -4,6 +4,7 @@ import {postsViewType} from "../models/postsViewModel";
 import {getArrayWithPagination} from "../helpers/arrayWhithPagination";
 import {injectable} from "inversify";
 import {mappers} from "../helpers/mappers";
+import {userForLikeStatusType} from "../models/userForLikeStatusModel";
 
 @injectable()
 export class PostsQwRepositoryClass {
@@ -12,7 +13,7 @@ export class PostsQwRepositoryClass {
         pS: number,
         sortField: string,
         sD: 1 | -1,
-        userId?: string | undefined | null
+        user?: userForLikeStatusType | undefined | null
     ): Promise<postsViewType> {
         let totalCount = await postsModel.count({});
         const posts = await postsModel
@@ -21,7 +22,9 @@ export class PostsQwRepositoryClass {
             .skip((pN - 1) * pS)
             .limit(pS)
             .lean();
-        const items = await mappers.postsMapper(posts, userId);
+
+        const items = await mappers.postsMapper(posts, user);
+        //console.log('items:', items)
         return getArrayWithPagination(totalCount,
             pS,
             pN,
@@ -30,13 +33,13 @@ export class PostsQwRepositoryClass {
 
     async findPost(
         id: string,
-        userId?: string | undefined | null
+        user?: userForLikeStatusType | undefined | null
     ) {
         let post = await postsModel.findOne({_id: new ObjectId(id)});
         if (!post) {
             return undefined;
         }
-        const result = await mappers.postMapper(post, userId);
+        const result = await mappers.postMapper(post, user);
         return result;
     }
 };

@@ -1,10 +1,11 @@
-export class LikeStatusOfPostClass {
+export class LikeStatusClass {
     addedAt: string
     constructor(
-        public postId: string,
+        public entity: string,
+        public entityId: string,
         public userId: string,
         public userLogin: string,
-        public likeStatus: string
+        public status: string
     ) {
         this.addedAt = new Date().toISOString()
     }

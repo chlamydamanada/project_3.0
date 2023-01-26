@@ -4,6 +4,8 @@ import {commentDbType} from "../models/commentDbModel";
 import {CommentsDbClass} from "../classes/CommentsDbClass";
 import {LikeStatusOfCommentClass} from "../classes/LikeOfCommentsClass";
 import {inject, injectable} from "inversify";
+import {LikeStatusClass} from "../classes/LikeStatusClass";
+
 @injectable()
 export class CommentsService {
 
@@ -32,10 +34,10 @@ export class CommentsService {
         return await this.commentsDbRepository.updateComment(commentId, content);
     }
 
-    async generateStatusOfComment(commentId: string, userId: string, status: string) {
+    async generateStatusOfComment(commentId: string, userId: string, userLogin: string, status: string) {
         const statusOfComment = await this.commentsDbRepository.findStatusOfComment(commentId, userId);
         if (!statusOfComment) {
-            const newStatus = new LikeStatusOfCommentClass(commentId, userId, status);
+            const newStatus = new LikeStatusClass("comment", commentId, userId, userLogin, status);
             await this.commentsDbRepository.createStatusOfComment(newStatus);
         }
         await this.commentsDbRepository.updateStatusOfComment(commentId, userId, status)

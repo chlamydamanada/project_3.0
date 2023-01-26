@@ -52,20 +52,6 @@ export class UsersQwRepositoryClass {
       };
     }
   }
-  async findUserByRefreshToken(
-    refreshToken: string
-  ): Promise<userViewType | undefined> {
-    const user = await usersModel.findOne({ refreshToken: refreshToken });
-    if (!user) {
-      return undefined;
-    } else {
-      return {
-        id: user._id.toString(),
-        login: user.login,
-        email: user.email,
-        createdAt: user.createdAt,
-      };
-    }
-  }
+
 };
 export const usersQwRepository = new UsersQwRepositoryClass();

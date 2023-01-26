@@ -1,5 +1,6 @@
-import {likeStatusOfCommentsModel, likeStatusOfPostsModel} from "../repositories/db";
+import {likeStatusModel} from "../repositories/db";
 import {newPostMapperType} from "../models/newPostMapperModel";
+import {userForLikeStatusType} from "../models/userForLikeStatusModel";
 
 export const mappers = {
     blogMapper(blog: any) {
@@ -21,11 +22,13 @@ export const mappers = {
         }));
         return result;
     },
-    async postsMapper(posts: any[], userId?: string | undefined | null) {
+    async postsMapper(posts: any[], user?: userForLikeStatusType | undefined | null) {
         try {
-            const result = posts.map(async post => {
-                await this.postMapper(post, userId)
-            })
+            const result = await Promise.all(posts.map(async post => {
+                const newPost = await this.postMapper(post, user)
+                return newPost
+            }))
+
             return result
 
         } catch (e) {
@@ -33,7 +36,7 @@ export const mappers = {
         }
 
     },
-    async postMapper(post: any, userId?: string | undefined | null) {
+    async postMapper(post: any, user?: userForLikeStatusType | undefined | null) {
         const newPost: newPostMapperType = {
             id: post._id.toString(),
             title: post.title,
@@ -43,26 +46,31 @@ export const mappers = {
             blogName: post.blogName,
             createdAt: post.createdAt,
             extendedLikesInfo: {
-                likesCount: await likeStatusOfPostsModel
-                    .count({postId: post._id, likeStatus: "Like"}),
-                dislikesCount: await likeStatusOfPostsModel
-                    .count({postId: post._id, likeStatus: "Dislike"}),
+                likesCount: await likeStatusModel
+                    .count({entityId: post._id, entity: 'post', likeStatus: "Like"}),
+                dislikesCount: await likeStatusModel
+                    .count({entityId: post._id, entity: 'post', likeStatus: "Dislike"}),
                 myStatus: "None",
-                newestLikes: null
+                newestLikes: [{}]
             }
         };
-        const newLikes = await likeStatusOfPostsModel.find({postId: post._id, likeStatus: "Like"})
+
+        const newLikes = await likeStatusModel.find({entityId: post._id, entity: 'post', likeStatus: "Like"})
             .sort({addedAt: -1}).limit(3).lean();
         newPost.extendedLikesInfo.newestLikes = newLikes.map(s => ({
             addedAt: s.addedAt,
             userId: s.userId,
             login: s.userLogin
         }))
-        if (!userId) return newPost;
-        let userReaction = await likeStatusOfPostsModel.findOne({postId: post._id, userId: userId})
+
+
+        if (!user) return newPost;
+
+        let userReaction = await likeStatusModel.findOne({entityId: post._id, entity: 'post', userId: user.userId})
         if (userReaction) {
-            newPost.extendedLikesInfo.myStatus = userReaction.likeStatus;
+            newPost.extendedLikesInfo.myStatus = userReaction.status;
         }
+
         return newPost;
 
 
@@ -71,33 +79,35 @@ export const mappers = {
     },
     usersMapper() {
     },
-    async commentMapper(comment: any, userId?: string | undefined | null) {
+    async commentMapper(comment: any, user?: userForLikeStatusType | undefined | null) {
         const newComment = {
             id: comment._id.toString(),
             content: comment.content,
-            userId: comment.userId,
-            userLogin: comment.userLogin,
+            commentatorInfo: {
+                userId: comment.userId,
+                userLogin: comment.userLogin,
+            },
             createdAt: comment.createdAt,
             likesInfo: {
-                likesCount: await likeStatusOfCommentsModel
-                    .count({commentId: comment._id, likeStatus: "Like"}),
-                dislikesCount: await likeStatusOfCommentsModel
-                    .count({commentId: comment._id, likeStatus: "Dislike"}),
+                likesCount: await likeStatusModel
+                    .count({entityId: comment._id, entity: 'comment', status: "Like"}),
+                dislikesCount: await likeStatusModel
+                    .count({entityId: comment._id, entity: 'comment', status: "Dislike"}),
                 myStatus: "None"
             }
         }
-        if (!userId) return newComment;
-        let userReaction = await likeStatusOfCommentsModel.findOne({commentId: comment._id, userId: userId})
+        if (!user) return newComment;
+        let userReaction = await likeStatusModel.findOne({entityId: comment._id, entity: 'comment', userId: user.userId})
         if (userReaction) {
-            newComment.likesInfo.myStatus = userReaction.likeStatus;
+            newComment.likesInfo.myStatus = userReaction.status;
         }
         return newComment;
     },
-    async commentsMapper(comments: any[], userId?: string | undefined | null) {
+    async commentsMapper(comments: any[], user?: userForLikeStatusType | undefined | null) {
         try {
-            const result = comments.map(async comment => {
-                await this.commentMapper(comment, userId)
-            })
+            const result = await Promise.all(comments.map(async comment => {
+                await this.commentMapper(comment, user)
+            }))
             return result
 
         } catch (e) {
